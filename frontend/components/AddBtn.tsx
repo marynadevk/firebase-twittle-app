@@ -3,7 +3,7 @@ import React, { FC } from 'react';
 type Props = {
   setIsOpen: (value: boolean) => void;
 };
-const AddPost: FC<Props> = ({ setIsOpen }) => {
+const AddBtn: FC<Props> = ({ setIsOpen }) => {
   return (
     <div>
       <button
@@ -37,4 +37,4 @@ const AddPost: FC<Props> = ({ setIsOpen }) => {
   );
 };
 
-export default AddPost;
+export default AddBtn;

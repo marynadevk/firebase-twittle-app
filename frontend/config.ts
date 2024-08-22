@@ -10,5 +10,6 @@ export const envFirebase = {
 };
 
 export const envConfig = {
-  port: process.env.PORT,
+  port: process.env.NEXT_PUBLIC_PORT,
+  apiBaseUrl: process.env.NEXT_PUBLIC_API_BASE_URL,
 };

@@ -24,7 +24,7 @@ export class PostController {
     return 'This action adds a new post';
   }
 
-  @Get('all')
+  @Get()
   async getPosts() {
     return this.postService.getPosts();
   }

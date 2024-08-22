@@ -4,7 +4,6 @@ import { CreatePostDto } from '../dtos/create-post.dto';
 import { Firestore, Timestamp } from 'firebase-admin/firestore';
 import { app } from 'firebase-admin';
 import { ResponsePostDto } from '../dtos/response-post.dto';
-// import { ResponsePostDto } from '../dtos/response-post.dto';
 
 @Injectable()
 export class PostService {
@@ -24,7 +23,7 @@ export class PostService {
       updatedAt: Timestamp.fromDate(new Date()),
     });
     console.log('New post', newPost);
-    return newPost.id;
+    return newPost;
   }
 
   async getPosts(): Promise<ResponsePostDto[]> {
