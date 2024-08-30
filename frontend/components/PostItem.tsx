@@ -8,23 +8,30 @@ import { deletePost, updatePost } from '@/api/posts';
 import { ICreatePost } from '@/interfaces/ICreatePost';
 import UploadImg from './UploadImg';
 import { uploadNewImg } from '@/app/helpers/uploadNewImg';
+import { deleteImgFromStorage } from '@/app/helpers/deleteImgFromStorage';
 
 type Props = {
   post: IPost;
 };
 
 const PostItem: FC<Props> = ({ post }) => {
-  const { image, title, text, createdAt, authorId, likes, dislikes } = post;
+  const {
+    image,
+    imageName,
+    title,
+    text,
+    createdAt,
+    authorId,
+    likes,
+    dislikes,
+  } = post;
   const [updatePostInfo, setUpdatePosInfo] = useState<ICreatePost>({
     title,
     text,
     image,
   });
   const postedAt = new Date(createdAt).toISOString().split('T')[0];
-  const [user] = useLocalStorage<null | IUser>(
-    'user',
-    null
-  );
+  const [user] = useLocalStorage<null | IUser>('user', null);
   const [isEdit, setIsEdit] = useState(false);
   const [isAuthor, setIsAuthor] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -44,12 +51,16 @@ const PostItem: FC<Props> = ({ post }) => {
       const updatedPost = {
         ...updatePostInfo,
         image: url,
+        imageName: selectedFile?.name,
       };
       updatePost(post.id, updatedPost).then(() => {
         setUpdatePosInfo((prevState) => ({
           ...prevState,
           image: url,
+          imageName: selectedFile?.name,
         }));
+        if (!imageName) return;
+        deleteImgFromStorage(imageName);
       });
       setIsEdit(false);
     });
@@ -67,9 +78,9 @@ const PostItem: FC<Props> = ({ post }) => {
 
   const handleDelete = () => {
     deletePost(post.id);
+    if (!imageName) return;
+    deleteImgFromStorage(imageName);
   };
-
-  console.log('updatePostInfo', updatePostInfo);
 
   return (
     <div className="card card-compact w-full shadow-xl flex justify-start">

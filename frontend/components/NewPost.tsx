@@ -24,6 +24,7 @@ const NewPost: FC<Props> = ({ setIsOpen }) => {
     const newPost = {
       ...post,
       image: url,
+      imageName: file?.name,
     };
     createPost(newPost);
     setIsOpen(false);

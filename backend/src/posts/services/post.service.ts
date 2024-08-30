@@ -18,6 +18,7 @@ export class PostService {
       authorId: user.uid,
       title: request.title,
       image: request.image || '',
+      imageName: request.imageName || '',
       text: request.text,
       createdAt: Timestamp.fromDate(new Date()),
       updatedAt: Timestamp.fromDate(new Date()),
@@ -36,6 +37,7 @@ export class PostService {
         authorId: data.authorId,
         title: data.title,
         image: data.image,
+        imageName: data.imageName,
         text: data.text,
         createdAt: data.createdAt.toDate(),
         updatedAt: data.updatedAt.toDate(),
@@ -54,6 +56,7 @@ export class PostService {
         authorId: data.authorId,
         title: data.title,
         image: data.image,
+        imageName: data.imageName,
         text: data.text,
         createdAt: data.createdAt.toDate(),
         updatedAt: data.updatedAt.toDate(),
@@ -72,6 +75,7 @@ export class PostService {
         updatedPost = await postCollection.doc(id).update({
           title: input.title,
           image: input.image,
+          imageName: input.imageName,
           text: input.text,
           updatedAt: Timestamp.fromDate(new Date()),
         });
