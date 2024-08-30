@@ -8,3 +8,11 @@ export const createPost = (post: ICreatePost) => {
 export const getPosts = () => {
   return api.get('/posts');
 };
+
+export const updatePost = (id: string, post: ICreatePost) => {
+  return api.put(`/posts/${id}`, post);
+};
+
+export const deletePost = (id: string) => {
+  return api.delete(`/posts/${id}`);
+};

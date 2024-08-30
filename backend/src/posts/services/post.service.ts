@@ -61,4 +61,40 @@ export class PostService {
     });
     return postsData;
   }
+
+  async updatePost(id: string, input: CreatePostDto, user: UserInfoDto) {
+    const postCollection = this.db.collection('posts');
+    const post = await postCollection.doc(id).get();
+    if (post.exists) {
+      const data = post.data();
+      let updatedPost;
+      if (data.authorId === user.uid) {
+        updatedPost = await postCollection.doc(id).update({
+          title: input.title,
+          image: input.image,
+          text: input.text,
+          updatedAt: Timestamp.fromDate(new Date()),
+        });
+        return updatedPost;
+      }
+    } else {
+      return 'Post not found';
+    }
+  }
+
+  async deletePost(id: string, user: UserInfoDto) {
+    const postCollection = this.db.collection('posts');
+    const post = await postCollection.doc(id).get();
+    if (post.exists) {
+      const data = post.data();
+      if (data.authorId === user.uid) {
+        await postCollection.doc(id).delete();
+        return true;
+      } else {
+        return 'You are not the author of this post';
+      }
+    } else {
+      return 'Post not found';
+    }
+  }
 }

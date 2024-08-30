@@ -5,11 +5,16 @@ import { useLocalStorage } from 'usehooks-ts';
 
 const Header = () => {
   const [token, setToken, removeToken] = useLocalStorage('token', null);
-  const [user, setUser, removeUser] = useLocalStorage<null | IUser>('user', null);
+  const [user, setUser, removeUser] = useLocalStorage<null | IUser>(
+    'user',
+    null
+  );
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   useEffect(() => {
     setIsAuthenticated(!!token);
   }, [token]);
+
+
 
   const logout = () => {
     removeToken();

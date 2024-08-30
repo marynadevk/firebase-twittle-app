@@ -1,10 +1,9 @@
 'use client';
 import React, { ChangeEvent, FC, useState } from 'react';
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { storage } from '@/lib/firebase';
 import UploadImg from './UploadImg';
 import { ICreatePost } from '@/interfaces/ICreatePost';
 import { createPost } from '@/api/posts';
+import { uploadNewImg } from '@/app/helpers/uploadNewImg';
 
 type Props = {
   setIsOpen: (value: boolean) => void;
@@ -17,30 +16,18 @@ const NewPost: FC<Props> = ({ setIsOpen }) => {
     text: '',
   });
 
-  const handleUpload = async () => {
-    if (!file) return;
-    const storageRef = ref(storage, `images/${file.name}`);
-
-    try {
-      await uploadBytes(storageRef, file);
-      const url = await getDownloadURL(storageRef);
-      console.log('File Uploaded Successfully');
-      return url;
-    } catch (error) {
-      console.error('Error uploading the file', error);
-    }
-  };
-
   const createNewPost = async () => {
     if (!post.text || !post.title) {
       return;
     }
-    const url = await handleUpload();
+    const url = await uploadNewImg(file);
     const newPost = {
       ...post,
       image: url,
     };
     createPost(newPost);
+    setIsOpen(false);
+    setPost({title: '', text: ''});
   };
 
   const handleChange = (

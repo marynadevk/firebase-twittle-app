@@ -10,12 +10,23 @@ import { BiComment } from 'react-icons/bi';
 type Props = {
   postedAt: string;
   updatedAt?: string;
+  authorId: string;
+  likes: string[];
+  dislikes: string[];
+  id: string;
 };
 
-const PostActionsBar: FC<Props> = ({ postedAt }) => {
+const PostActionsBar: FC<Props> = ({
+  postedAt,
+  likes,
+  dislikes,
+  authorId,
+  id,
+}) => {
+  
   return (
-    <div>
-      <div className="card-actions justify-between items-center">
+    <div className="card-actions justify-between items-center">
+      <div className="flex items-center">
         <button className="btn btn-ghost btn-sm">
           <AiFillLike />
           <AiOutlineLike />
@@ -27,10 +38,6 @@ const PostActionsBar: FC<Props> = ({ postedAt }) => {
         <button className="btn btn-ghost btn-sm">
           <BiComment />
         </button>
-      </div>
-      <hr />
-      <div className="card-actions justify-end">
-        <span className="badge badge-ghost">Posted on {postedAt}</span>
       </div>
     </div>
   );

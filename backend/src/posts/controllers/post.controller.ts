@@ -1,10 +1,12 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Inject,
   Param,
   Post,
+  Put,
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from 'src/auth/guards/auth.guard';
@@ -32,5 +34,23 @@ export class PostController {
   @Get('/:id')
   async getUsersPosts(@Param('id') id: string) {
     return this.postService.getUsersPosts(id);
+  }
+
+  @Put('/:id')
+  @UseGuards(AuthGuard)
+  async updatePost(
+    @Param('id') id: string,
+    @Body() input: CreatePostDto,
+    @User() user: UserInfoDto,
+  ) {
+    const response = this.postService.updatePost(id, input, user);
+    return response;
+  }
+
+  @Delete('/:id')
+  @UseGuards(AuthGuard)
+  async deletePost(@Param('id') id: string, @User() user: UserInfoDto) {
+    this.postService.deletePost(id, user);
+    return 'This action removes a post';
   }
 }
