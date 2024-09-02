@@ -9,6 +9,8 @@ import { ICreatePost } from '@/interfaces/ICreatePost';
 import UploadImg from './UploadImg';
 import { uploadNewImg } from '@/app/helpers/uploadNewImg';
 import { deleteImgFromStorage } from '@/app/helpers/deleteImgFromStorage';
+import AuthenticatedActions from './AuthenticatedActions';
+import { AiFillDislike, AiFillLike } from 'react-icons/ai';
 
 type Props = {
   post: IPost;
@@ -22,8 +24,8 @@ const PostItem: FC<Props> = ({ post }) => {
     text,
     createdAt,
     authorId,
-    likes,
-    dislikes,
+    likes = [],
+    dislikes = [],
   } = post;
   const [updatePostInfo, setUpdatePosInfo] = useState<ICreatePost>({
     title,
@@ -35,6 +37,7 @@ const PostItem: FC<Props> = ({ post }) => {
   const [isEdit, setIsEdit] = useState(false);
   const [isAuthor, setIsAuthor] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [token] = useLocalStorage('token', null);
 
   useEffect(() => {
     setIsAuthor(() => {
@@ -48,6 +51,9 @@ const PostItem: FC<Props> = ({ post }) => {
   const handleSave = () => {
     if (!updatePostInfo) return;
     uploadNewImg(selectedFile).then((url) => {
+      if (!url) {
+        url = image;
+      }
       const updatedPost = {
         ...updatePostInfo,
         image: url,
@@ -56,11 +62,9 @@ const PostItem: FC<Props> = ({ post }) => {
       updatePost(post.id, updatedPost).then(() => {
         setUpdatePosInfo((prevState) => ({
           ...prevState,
-          image: url,
           imageName: selectedFile?.name,
         }));
         if (!imageName) return;
-        deleteImgFromStorage(imageName);
       });
       setIsEdit(false);
     });
@@ -84,8 +88,16 @@ const PostItem: FC<Props> = ({ post }) => {
 
   return (
     <div className="card card-compact w-full shadow-xl flex justify-start">
-      <div className="card-actions justify-end">
-        <span className="badge badge-ghost">Posted on {postedAt}</span>
+      <div className="card-actions flex justify-end items-center ">
+        {isAuthor && (
+          <AuthorActions
+            isEdit={isEdit}
+            savePost={handleSave}
+            deletePost={handleDelete}
+            updatePost={handleUpdate}
+          />
+        )}
+        <div className="badge badge-ghost">Posted on {postedAt}</div>
       </div>
       <figure className="flex justify-start content-start w-36">
         {image && <img src={updatePostInfo.image} alt="post-image" />}
@@ -112,22 +124,23 @@ const PostItem: FC<Props> = ({ post }) => {
           </>
         )}
         <hr />
-        <PostActionsBar
-          id={post.id}
-          likes={likes}
-          dislikes={dislikes}
-          postedAt={postedAt}
-          authorId={authorId}
-        />
+        <PostActionsBar>
+          {token ? (
+            <AuthenticatedActions
+              id={post.id}
+              likes={likes}
+              dislikes={dislikes}
+            />
+          ) : (
+            <div className="flex items-center gap-2">
+              <AiFillLike />
+              <span>{likes.length}</span>
+              <AiFillDislike />
+              <span>{dislikes.length}</span>
+            </div>
+          )}
+        </PostActionsBar>
       </div>
-      {isAuthor && (
-        <AuthorActions
-          isEdit={isEdit}
-          savePost={handleSave}
-          deletePost={handleDelete}
-          updatePost={handleUpdate}
-        />
-      )}
     </div>
   );
 };

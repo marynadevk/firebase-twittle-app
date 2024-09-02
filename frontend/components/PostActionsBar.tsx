@@ -1,45 +1,12 @@
-import React, { FC } from 'react';
-import {
-  AiFillDislike,
-  AiFillLike,
-  AiOutlineDislike,
-  AiOutlineLike,
-} from 'react-icons/ai';
-import { BiComment } from 'react-icons/bi';
+import React, { FC, ReactNode } from 'react';
 
 type Props = {
-  postedAt: string;
-  updatedAt?: string;
-  authorId: string;
-  likes: string[];
-  dislikes: string[];
-  id: string;
+  children: ReactNode;
 };
 
-const PostActionsBar: FC<Props> = ({
-  postedAt,
-  likes,
-  dislikes,
-  authorId,
-  id,
-}) => {
-  
+const PostActionsBar: FC<Props> = ({ children }) => {
   return (
-    <div className="card-actions justify-between items-center">
-      <div className="flex items-center">
-        <button className="btn btn-ghost btn-sm">
-          <AiFillLike />
-          <AiOutlineLike />
-        </button>
-        <button className="btn btn-ghost btn-sm">
-          <AiFillDislike />
-          <AiOutlineDislike />
-        </button>
-        <button className="btn btn-ghost btn-sm">
-          <BiComment />
-        </button>
-      </div>
-    </div>
+    <div className="card-actions justify-between items-center">{children}</div>
   );
 };
 

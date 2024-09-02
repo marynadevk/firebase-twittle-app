@@ -53,4 +53,18 @@ export class PostController {
     this.postService.deletePost(id, user);
     return 'This action removes a post';
   }
+
+  @Put('/:id/like')
+  @UseGuards(AuthGuard)
+  async likePost(@Param('id') id: string, @User() user: UserInfoDto) {
+    const response = await this.postService.likePost(id, user.uid);
+    return response;
+  }
+
+  @Put('/:id/dislike')
+  @UseGuards(AuthGuard)
+  async dislikePost(@Param('id') id: string, @User() user: UserInfoDto) {
+    const response = await this.postService.dislikePost(id, user.uid);
+    return response;
+  }
 }

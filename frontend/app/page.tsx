@@ -10,7 +10,7 @@ import { useEffect, useState } from 'react';
 import { useLocalStorage } from 'usehooks-ts';
 
 const Home = () => {
-  const [token, setToken, removeToken] = useLocalStorage('token', null);
+  const [token] = useLocalStorage('token', null);
   const [isOpen, setIsOpen] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   useEffect(() => {

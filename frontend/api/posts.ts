@@ -13,6 +13,14 @@ export const updatePost = (id: string, post: ICreatePost) => {
   return api.put(`/posts/${id}`, post);
 };
 
+export const updatePostLike = (postId: string) => {
+  return api.put(`/posts/${postId}/like`);
+};
+
+export const updatePostDislike = (postId: string) => {
+  return api.put(`/posts/${postId}/dislike`);
+};
+
 export const deletePost = (id: string) => {
   return api.delete(`/posts/${id}`);
 };

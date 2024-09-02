@@ -22,8 +22,9 @@ export class PostService {
       text: request.text,
       createdAt: Timestamp.fromDate(new Date()),
       updatedAt: Timestamp.fromDate(new Date()),
+      likes: [],
+      dislikes: [],
     });
-    console.log('New post', newPost);
     return newPost;
   }
 
@@ -41,6 +42,8 @@ export class PostService {
         text: data.text,
         createdAt: data.createdAt.toDate(),
         updatedAt: data.updatedAt.toDate(),
+        likes: data.likes,
+        dislikes: data.dislikes,
       };
     });
     return postsData;
@@ -60,6 +63,8 @@ export class PostService {
         text: data.text,
         createdAt: data.createdAt.toDate(),
         updatedAt: data.updatedAt.toDate(),
+        likes: data.likes,
+        dislikes: data.dislikes,
       };
     });
     return postsData;
@@ -74,8 +79,8 @@ export class PostService {
       if (data.authorId === user.uid) {
         updatedPost = await postCollection.doc(id).update({
           title: input.title,
-          image: input.image,
-          imageName: input.imageName,
+          image: input.image || data.image,
+          imageName: input.imageName || data.imageName,
           text: input.text,
           updatedAt: Timestamp.fromDate(new Date()),
         });
@@ -100,5 +105,55 @@ export class PostService {
     } else {
       return 'Post not found';
     }
+  }
+
+  async likePost(postId: string, userId: string) {
+    const postCollection = this.db.collection('posts');
+    const post = await postCollection.doc(postId).get();
+    let updatedPost;
+    if (post.exists) {
+      const data = post.data();
+      if (!data.likes.includes(userId)) {
+        data.likes.push(userId);
+        data.dislikes = data.dislikes.filter((id: string) => id !== userId);
+        updatedPost = await postCollection.doc(postId).update({
+          likes: data.likes,
+          dislikes: data.dislikes,
+        });
+      } else {
+        data.likes = data.likes.filter((id: string) => id !== userId);
+        updatedPost = await postCollection.doc(postId).update({
+          likes: data.likes,
+        });
+      }
+    }
+    return updatedPost;
+  }
+
+  async dislikePost(postId: string, userId: string) {
+    const postCollection = this.db.collection('posts');
+    const post = await postCollection.doc(postId).get();
+    let updatedPost;
+    if (post.exists) {
+      const data = post.data();
+      data.likes = data.likes.filter((id: string) => id !== userId) || [];
+      updatedPost = await postCollection.doc(postId).update({
+        likes: data.likes,
+      });
+      const isDisliked = data.dislikes.includes(userId);
+      if (isDisliked) {
+        data.dislikes =
+          data.dislikes.filter((id: string) => id !== userId) || [];
+        updatedPost = await postCollection.doc(postId).update({
+          dislikes: data.dislikes,
+        });
+      } else {
+        data.dislikes.push(userId);
+        updatedPost = await postCollection.doc(postId).update({
+          dislikes: data.dislikes,
+        });
+      }
+    }
+    return updatedPost;
   }
 }
