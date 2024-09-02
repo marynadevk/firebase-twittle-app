@@ -1,3 +1,5 @@
+import { IAuthor } from './IAuthor';
+
 export interface IPost {
   title: string;
   text: string;
@@ -9,4 +11,5 @@ export interface IPost {
   id: string;
   likes: string[];
   dislikes: string[];
+  author: IAuthor;
 }

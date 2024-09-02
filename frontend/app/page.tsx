@@ -4,7 +4,8 @@ import AddBtn from '@/components/AddBtn';
 import Header from '@/components/Header';
 import LeftSide from '@/components/LeftSide';
 import NewPost from '@/components/NewPost';
-import PostsList from '@/components/PostsList';
+import PostsList from '@/components/post/PostsList';
+import Profile from '@/components/Profile';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { useLocalStorage } from 'usehooks-ts';
@@ -35,6 +36,7 @@ const Home = () => {
             </div>
           ) : (
             <div className="flex align-top h-screen font-primary m-2">
+              <Profile />
               {!isOpen && <AddBtn setIsOpen={setIsOpen} />}
             </div>
           )}

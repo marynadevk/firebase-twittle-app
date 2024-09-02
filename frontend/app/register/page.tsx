@@ -5,10 +5,11 @@ import { IRegistrationForm } from '@/interfaces/IRegistrationForm';
 import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import React, { ChangeEvent, FormEvent, useState } from 'react';
+import React, { ChangeEvent, FormEvent, useEffect, useState } from 'react';
 import GoogleSignIn from '@/components/GoogleSignIn';
 import { useLocalStorage } from 'usehooks-ts';
 import { IUser } from '@/interfaces/IUser';
+import { AvatarGenerator } from 'random-avatar-generator';
 
 const RegisterPage = () => {
   const [errors, setErrors] = useState({});
@@ -23,6 +24,13 @@ const RegisterPage = () => {
   const [user, setUser] = useLocalStorage<null | IUser>('user', null);
   const [token, setToken] = useLocalStorage<null | string>('token', null);
   const router = useRouter();
+
+  useEffect(() => {
+    setFormState((prev) => ({
+      ...prev,
+      avatarUrl: generateRandomAvatar(),
+    }));
+  }, []);
 
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
@@ -51,6 +59,11 @@ const RegisterPage = () => {
     return Object.keys(newErrors).length === 0;
   };
 
+  const generateRandomAvatar = () => {
+    const generator = new AvatarGenerator();
+    return generator.generateRandomAvatar();
+  };
+
   const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target;
     setFormState((prevState) => ({
@@ -68,24 +81,29 @@ const RegisterPage = () => {
         setLoading(false);
         return;
       }
+
       const userCredentials = await createUserWithEmailAndPassword(
         auth,
         formState.email,
         formState.password
       );
-      const user = userCredentials.user;
-      updateProfile(user, {
+      const currentUser = userCredentials.user;
+
+      updateProfile(currentUser, {
         displayName: formState.fullName,
-        photoURL: formState.avatarUrl
-      })
-      console.log('User created:', user);
-      const token = await user.getIdToken();
+        photoURL: formState.avatarUrl,
+      });
+      console.log('currentUser:', currentUser);
+
+      const token = await currentUser.getIdToken();
       setToken(token);
+      if (!currentUser) return;
+      console.log('USER', currentUser);
       setUser({
-        fullName: user.displayName || '',
-        email: user.email || '',
-        uid: user.uid,
-        avatarUrl: user.photoURL || '',
+        fullName: formState.fullName || '',
+        email: currentUser.email || '',
+        uid: currentUser.uid,
+        avatarUrl: formState.avatarUrl || '',
       });
       router.push('/');
       setErrors({});
@@ -97,6 +115,12 @@ const RegisterPage = () => {
     }
   };
 
+  const handleRefreshAvatar = () => {
+    setFormState((prev) => ({
+      ...prev,
+      avatarUrl: generateRandomAvatar(),
+    }));
+  };
   return (
     <div className="flex justify-center items-center h-screen font-primary p-10 m-2">
       <form
@@ -106,14 +130,14 @@ const RegisterPage = () => {
         Registration
         <div className="flex items-center space-y-2 justify-between border border-gray-200 p-2">
           <img
-            src="/user-avatar.png"
+            src={formState.avatarUrl}
             alt="Avatar"
             className=" rounded-full h-20 w-20"
           />
           <button
             type="button"
             className="btn btn-outline btn-accent"
-            // onClick={handleRefreshAvatar}
+            onClick={handleRefreshAvatar}
           >
             New Avatar
           </button>

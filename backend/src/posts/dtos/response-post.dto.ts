@@ -1,3 +1,5 @@
+import { AuthorDto } from './author.dto';
+
 export class ResponsePostDto {
   title: string;
   text: string;
@@ -8,4 +10,5 @@ export class ResponsePostDto {
   createdAt: Date;
   updatedAt?: Date;
   id: string;
+  author: AuthorDto;
 }

@@ -53,7 +53,7 @@ const LoginPage = () => {
           formState.email,
           formState.password
         );
-
+        console.log('userCredentials:', userCredentials);
         const user = userCredentials.user;
         const token = await user.getIdToken();
 

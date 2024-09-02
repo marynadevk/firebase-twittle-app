@@ -4,14 +4,18 @@ import { CreatePostDto } from '../dtos/create-post.dto';
 import { Firestore, Timestamp } from 'firebase-admin/firestore';
 import { app } from 'firebase-admin';
 import { ResponsePostDto } from '../dtos/response-post.dto';
+import { Auth } from 'firebase-admin/auth';
 
 @Injectable()
 export class PostService {
   private db: Firestore;
+  private auth: Auth;
 
   constructor(@Inject('FIREBASE_APP') private firebaseApp: app.App) {
     this.db = firebaseApp.firestore();
+    this.auth = firebaseApp.auth();
   }
+
   async create(request: CreatePostDto, user: UserInfoDto) {
     const postCollection = this.db.collection('posts');
     const newPost = await postCollection.add({
@@ -31,8 +35,10 @@ export class PostService {
   async getPosts(): Promise<ResponsePostDto[]> {
     const postCollection = this.db.collection('posts');
     const posts = await postCollection.get();
+    const authors = [];
     const postsData = posts.docs.map((post) => {
       const data = post.data();
+      authors.push({ uid: data.authorId });
       return {
         id: post.id,
         authorId: data.authorId,
@@ -44,8 +50,22 @@ export class PostService {
         updatedAt: data.updatedAt.toDate(),
         likes: data.likes,
         dislikes: data.dislikes,
+        author: { id: '', name: '', photoUrl: '' },
       };
     });
+
+    const result = await this.auth.getUsers(authors);
+    postsData.forEach((post) => {
+      const author = result.users.find((user) => user.uid === post.authorId);
+      if (author) {
+        post.author = {
+          name: author.displayName,
+          photoUrl: author.photoURL,
+          id: author.uid,
+        };
+      }
+    });
+
     return postsData;
   }
 
@@ -65,6 +85,7 @@ export class PostService {
         updatedAt: data.updatedAt.toDate(),
         likes: data.likes,
         dislikes: data.dislikes,
+        author: { id: '', name: '', photoUrl: '' },
       };
     });
     return postsData;

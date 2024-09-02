@@ -6,11 +6,12 @@ import { IUser } from '@/interfaces/IUser';
 import AuthorActions from './AuthorActions';
 import { deletePost, updatePost } from '@/api/posts';
 import { ICreatePost } from '@/interfaces/ICreatePost';
-import UploadImg from './UploadImg';
+import UploadImg from '../UploadImg';
 import { uploadNewImg } from '@/app/helpers/uploadNewImg';
 import { deleteImgFromStorage } from '@/app/helpers/deleteImgFromStorage';
 import AuthenticatedActions from './AuthenticatedActions';
 import { AiFillDislike, AiFillLike } from 'react-icons/ai';
+import AuthorInformation from './AuthorInformation';
 
 type Props = {
   post: IPost;
@@ -26,6 +27,7 @@ const PostItem: FC<Props> = ({ post }) => {
     authorId,
     likes = [],
     dislikes = [],
+    author,
   } = post;
   const [updatePostInfo, setUpdatePosInfo] = useState<ICreatePost>({
     title,
@@ -88,17 +90,21 @@ const PostItem: FC<Props> = ({ post }) => {
 
   return (
     <div className="card card-compact w-full shadow-xl flex justify-start">
-      <div className="card-actions flex justify-end items-center ">
-        {isAuthor && (
-          <AuthorActions
-            isEdit={isEdit}
-            savePost={handleSave}
-            deletePost={handleDelete}
-            updatePost={handleUpdate}
-          />
-        )}
-        <div className="badge badge-ghost">Posted on {postedAt}</div>
+      <div className="card-actions flex justify-between items-center">
+        <AuthorInformation author={author} />
+        <div className="flex items-center">
+          {isAuthor && (
+            <AuthorActions
+              isEdit={isEdit}
+              savePost={handleSave}
+              deletePost={handleDelete}
+              updatePost={handleUpdate}
+            />
+          )}
+          <div className="badge badge-ghost">Posted on {postedAt}</div>
+        </div>
       </div>
+
       <figure className="flex justify-start content-start w-36">
         {image && <img src={updatePostInfo.image} alt="post-image" />}
       </figure>
