@@ -47,7 +47,7 @@ const UploadImg: FC<Props> = ({ file, setFile, isEdit }) => {
             {file?.name}
           </span>
           <button
-            className="flex btn-circle btn-outline btn-accent justify-center"
+            className="flex btn-circle btn-outline btn-accent justify-center items-center"
             onClick={handleFileDelete}
           >
             <AiOutlineDelete className="fill-white p-0" />

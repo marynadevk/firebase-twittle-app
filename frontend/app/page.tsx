@@ -5,7 +5,7 @@ import Header from '@/components/Header';
 import LeftSide from '@/components/LeftSide';
 import NewPost from '@/components/NewPost';
 import PostsList from '@/components/post/PostsList';
-import Profile from '@/components/Profile';
+import Profile from '@/components/profile/Profile';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { useLocalStorage } from 'usehooks-ts';
@@ -35,7 +35,7 @@ const Home = () => {
               </button>
             </div>
           ) : (
-            <div className="flex align-top h-screen font-primary m-2">
+            <div className="flex flex-col align-top font-primary gap-5 m-2 items-center w-full">
               <Profile />
               {!isOpen && <AddBtn setIsOpen={setIsOpen} />}
             </div>

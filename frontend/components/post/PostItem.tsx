@@ -33,6 +33,8 @@ const PostItem: FC<Props> = ({ post }) => {
     title,
     text,
     image,
+    likes,
+    dislikes,
   });
   const postedAt = new Date(createdAt).toISOString().split('T')[0];
   const [user] = useLocalStorage<null | IUser>('user', null);
@@ -89,8 +91,8 @@ const PostItem: FC<Props> = ({ post }) => {
   };
 
   return (
-    <div className="card card-compact w-full shadow-xl flex justify-start">
-      <div className="card-actions flex justify-between items-center">
+    <div className="card card-compact w-full shadow-xl flex justify-start bg-gray-200">
+      <div className="card-actions flex justify-between items-center p-4">
         <AuthorInformation author={author} />
         <div className="flex items-center">
           {isAuthor && (
@@ -104,7 +106,7 @@ const PostItem: FC<Props> = ({ post }) => {
           <div className="badge badge-ghost">Posted on {postedAt}</div>
         </div>
       </div>
-
+      <div className="divider divider-accent mb-0 mt-0 m-3" />
       <figure className="flex justify-start content-start w-36">
         {image && <img src={updatePostInfo.image} alt="post-image" />}
       </figure>

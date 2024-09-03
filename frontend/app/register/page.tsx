@@ -93,12 +93,11 @@ const RegisterPage = () => {
         displayName: formState.fullName,
         photoURL: formState.avatarUrl,
       });
-      console.log('currentUser:', currentUser);
 
       const token = await currentUser.getIdToken();
       setToken(token);
       if (!currentUser) return;
-      console.log('USER', currentUser);
+
       setUser({
         fullName: formState.fullName || '',
         email: currentUser.email || '',

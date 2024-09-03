@@ -28,7 +28,7 @@ const NewPost: FC<Props> = ({ setIsOpen }) => {
     };
     createPost(newPost);
     setIsOpen(false);
-    setPost({title: '', text: ''});
+    setPost({ title: '', text: '' });
   };
 
   const handleChange = (
@@ -44,7 +44,9 @@ const NewPost: FC<Props> = ({ setIsOpen }) => {
   return (
     <div className=" p-6 rounded flex flex-col h-max gap-5">
       <label>
-        <span className="text-base label-text text-white">Post Title</span>
+        <span className="flex w-full justify-center text-base label-text text-white pb-4">
+          Create new post
+        </span>
         <input
           type="text"
           className="input input-accent w-full"
