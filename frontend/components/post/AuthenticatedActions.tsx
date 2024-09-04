@@ -1,4 +1,4 @@
-import { FC } from 'react';
+import { FC, useState } from 'react';
 import {
   AiFillDislike,
   AiFillLike,
@@ -6,9 +6,8 @@ import {
   AiOutlineLike,
 } from 'react-icons/ai';
 import { BiComment } from 'react-icons/bi';
-import { useLocalStorage } from 'usehooks-ts';
-import { IUser } from '@/interfaces/IUser';
 import { updatePostLike, updatePostDislike } from '@/api/posts';
+import { auth } from '@/lib/firebase';
 type Props = {
   likes: string[];
   dislikes: string[];
@@ -16,14 +15,15 @@ type Props = {
 };
 
 const AuthenticatedActions: FC<Props> = ({ likes = [], dislikes = [], id }) => {
-  const [user] = useLocalStorage<null | IUser>('user', null);
-  const userId = user?.uid || '';
-  const hasLiked = likes.includes(userId);
-  const hasDisliked = dislikes.includes(userId);
+  const [likesCount, setLikesCount] = useState<number>(likes.length);
+  const [dislikesCount, setDislikesCount] = useState<number>(dislikes.length);
+  const [hasLiked, setHasLiked] = useState(likes.includes(auth.currentUser?.uid || ''));
+  const [hasDisliked, setHasDisliked] = useState(dislikes.includes(auth.currentUser?.uid || ''));
 
   const handleLike = async () => {
     try {
-      await updatePostLike(id)
+      const updatedPost = await updatePostLike(id);
+      updateReaction(updatedPost.data);
     } catch (error) {
       console.error('Error liking post:', error);
     }
@@ -31,21 +31,31 @@ const AuthenticatedActions: FC<Props> = ({ likes = [], dislikes = [], id }) => {
 
   const handleDislike = async () => {
     try {
-      await updatePostDislike(id);
+      const updatedPost = await updatePostDislike(id);
+      updateReaction(updatedPost.data);
     } catch (error) {
       console.error('Error disliking post:', error);
     }
+  };
+
+  const updateReaction = (updatedPost: any) => {
+    const likes = updatedPost.likes;
+    const dislikes = updatedPost.dislikes;
+    setHasDisliked(dislikes.includes(auth.currentUser?.uid));
+    setHasLiked(likes.includes(auth.currentUser?.uid));
+    setLikesCount(likes.length);
+    setDislikesCount(dislikes.length);
   };
 
   return (
     <div className="flex items-center">
       <button className="btn btn-ghost btn-sm" onClick={handleLike}>
         {hasLiked ? <AiFillLike /> : <AiOutlineLike />}
-        <span>{likes.length}</span>
+        <span>{likesCount}</span>
       </button>
       <button className="btn btn-ghost btn-sm" onClick={handleDislike}>
         {hasDisliked ? <AiFillDislike /> : <AiOutlineDislike />}
-        <span>{dislikes.length}</span>
+        <span>{dislikesCount}</span>
       </button>
       <button className="btn btn-ghost btn-sm">
         <BiComment />

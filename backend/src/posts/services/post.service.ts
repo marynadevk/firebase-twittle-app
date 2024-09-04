@@ -1,42 +1,57 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { UserInfoDto } from 'src/user/dtos/user-info.dto';
-import { CreatePostDto } from '../dtos/create-post.dto';
+
 import { Firestore, Timestamp } from 'firebase-admin/firestore';
 import { app } from 'firebase-admin';
-import { ResponsePostDto } from '../dtos/response-post.dto';
+
 import { Auth } from 'firebase-admin/auth';
+import { PostRepository } from '../repositories/post.repository';
+import { PostDto } from '../dtos/post.dto';
 
 @Injectable()
 export class PostService {
   private db: Firestore;
   private auth: Auth;
 
-  constructor(@Inject('FIREBASE_APP') private firebaseApp: app.App) {
+  constructor(
+    @Inject('FIREBASE_APP') private firebaseApp: app.App,
+    @Inject() private postRepository: PostRepository,
+  ) {
     this.db = firebaseApp.firestore();
     this.auth = firebaseApp.auth();
   }
 
-  async create(request: CreatePostDto, user: UserInfoDto) {
-    const postCollection = this.db.collection('posts');
-    const newPost = await postCollection.add({
+  async create(request: PostDto, user: UserInfoDto): Promise<PostDto> {
+    const newPost = {
       authorId: user.uid,
       title: request.title,
       image: request.image || '',
       imageName: request.imageName || '',
       text: request.text,
       createdAt: Timestamp.fromDate(new Date()),
-      updatedAt: Timestamp.fromDate(new Date()),
       likes: [],
       dislikes: [],
-    });
-    return newPost;
+    };
+    const id = await this.postRepository.createPost(newPost);
+
+    const author = {
+      name: user.fullName,
+      photoUrl: user.avatarUrl,
+      id: user.uid,
+    };
+
+    return {
+      id,
+      author,
+      ...newPost,
+      createdAt: newPost.createdAt.toDate(),
+    };
   }
 
-  async getPosts(): Promise<ResponsePostDto[]> {
-    const postCollection = this.db.collection('posts');
-    const posts = await postCollection.get();
+  async getPosts(page: number, size: number): Promise<PostDto[]> {
     const authors = [];
-    const postsData = posts.docs.map((post) => {
+    const posts = await this.postRepository.getPosts(page, size);
+    const postsData = posts.map((post) => {
       const data = post.data();
       authors.push({ uid: data.authorId });
       return {
@@ -47,7 +62,6 @@ export class PostService {
         imageName: data.imageName,
         text: data.text,
         createdAt: data.createdAt.toDate(),
-        updatedAt: data.updatedAt.toDate(),
         likes: data.likes,
         dislikes: data.dislikes,
         author: { id: '', name: '', photoUrl: '' },
@@ -56,7 +70,9 @@ export class PostService {
 
     const result = await this.auth.getUsers(authors);
     postsData.forEach((post) => {
-      const author = result.users.find((user) => user.uid === post.authorId);
+      const author = result.users.filter(
+        (user) => user.uid === post.authorId,
+      )[0];
       if (author) {
         post.author = {
           name: author.displayName,
@@ -69,11 +85,16 @@ export class PostService {
     return postsData;
   }
 
-  async getUsersPosts(userId: string): Promise<ResponsePostDto[]> {
-    const postCollection = this.db.collection('posts');
-    const posts = await postCollection.where('authorId', '==', userId).get();
-    const postsData = posts.docs.map((post) => {
+  async getUsersPosts(
+    userId: string,
+    page: number,
+    size: number,
+  ): Promise<PostDto[]> {
+    const authors = [];
+    const posts = await this.postRepository.getUsersPosts(userId, page, size);
+    const postsData = posts.map((post) => {
       const data = post.data();
+      authors.push({ uid: data.authorId });
       return {
         id: post.id,
         authorId: data.authorId,
@@ -82,99 +103,81 @@ export class PostService {
         imageName: data.imageName,
         text: data.text,
         createdAt: data.createdAt.toDate(),
-        updatedAt: data.updatedAt.toDate(),
         likes: data.likes,
         dislikes: data.dislikes,
         author: { id: '', name: '', photoUrl: '' },
       };
     });
+
+    const result = await this.auth.getUsers(authors);
+    postsData.forEach((post) => {
+      const author = result.users.filter(
+        (user) => user.uid === post.authorId,
+      )[0];
+      if (author) {
+        post.author = {
+          name: author.displayName,
+          photoUrl: author.photoURL,
+          id: author.uid,
+        };
+      }
+    });
+
     return postsData;
   }
 
-  async updatePost(id: string, input: CreatePostDto, user: UserInfoDto) {
-    const postCollection = this.db.collection('posts');
-    const post = await postCollection.doc(id).get();
-    if (post.exists) {
-      const data = post.data();
-      let updatedPost;
-      if (data.authorId === user.uid) {
-        updatedPost = await postCollection.doc(id).update({
-          title: input.title,
-          image: input.image || data.image,
-          imageName: input.imageName || data.imageName,
-          text: input.text,
-          updatedAt: Timestamp.fromDate(new Date()),
-        });
-        return updatedPost;
-      }
-    } else {
-      return 'Post not found';
+  async updatePost(id: string, input: PostDto, user: UserInfoDto) {
+    if (input.authorId !== user.uid) {
+      throw new Error('You are not the author of this post');
     }
+    return await this.postRepository.updatePost(id, input);
   }
 
   async deletePost(id: string, user: UserInfoDto) {
-    const postCollection = this.db.collection('posts');
-    const post = await postCollection.doc(id).get();
-    if (post.exists) {
-      const data = post.data();
-      if (data.authorId === user.uid) {
-        await postCollection.doc(id).delete();
-        return true;
-      } else {
-        return 'You are not the author of this post';
-      }
-    } else {
-      return 'Post not found';
+    const post = await this.postRepository.getPostById(id);
+    if (post.authorId !== user.uid) {
+      throw new Error('You are not the author of this post');
     }
+    return this.postRepository.deletePost(id);
   }
 
   async likePost(postId: string, userId: string) {
-    const postCollection = this.db.collection('posts');
-    const post = await postCollection.doc(postId).get();
-    let updatedPost;
-    if (post.exists) {
-      const data = post.data();
-      if (!data.likes.includes(userId)) {
-        data.likes.push(userId);
-        data.dislikes = data.dislikes.filter((id: string) => id !== userId);
-        updatedPost = await postCollection.doc(postId).update({
-          likes: data.likes,
-          dislikes: data.dislikes,
-        });
-      } else {
-        data.likes = data.likes.filter((id: string) => id !== userId);
-        updatedPost = await postCollection.doc(postId).update({
-          likes: data.likes,
-        });
-      }
+    const post = await this.postRepository.getPostById(postId);
+    if (!post) {
+      throw new Error('Post not found');
     }
-    return updatedPost;
+
+    if (!post.likes.includes(userId)) {
+      post.likes.push(userId);
+      post.dislikes = post.dislikes.filter((id: string) => id !== userId);
+    } else {
+      post.likes = post.likes.filter((id: string) => id !== userId);
+    }
+    await this.postRepository.updatePostLikes(
+      postId,
+      post.likes,
+      post.dislikes,
+    );
+    return post;
   }
 
   async dislikePost(postId: string, userId: string) {
-    const postCollection = this.db.collection('posts');
-    const post = await postCollection.doc(postId).get();
-    let updatedPost;
-    if (post.exists) {
-      const data = post.data();
-      data.likes = data.likes.filter((id: string) => id !== userId) || [];
-      updatedPost = await postCollection.doc(postId).update({
-        likes: data.likes,
-      });
-      const isDisliked = data.dislikes.includes(userId);
-      if (isDisliked) {
-        data.dislikes =
-          data.dislikes.filter((id: string) => id !== userId) || [];
-        updatedPost = await postCollection.doc(postId).update({
-          dislikes: data.dislikes,
-        });
-      } else {
-        data.dislikes.push(userId);
-        updatedPost = await postCollection.doc(postId).update({
-          dislikes: data.dislikes,
-        });
-      }
+    const post = await this.postRepository.getPostById(postId);
+    if (!post) {
+      throw new Error('Post not found');
     }
-    return updatedPost;
+
+    if (post.dislikes.includes(userId)) {
+      post.dislikes = post.dislikes.filter((id: string) => id !== userId) || [];
+    } else {
+      post.likes = post.likes.filter((id: string) => id !== userId) || [];
+      post.dislikes.push(userId);
+    }
+    await this.postRepository.updatePostLikes(
+      postId,
+      post.likes,
+      post.dislikes,
+    );
+    return post;
   }
 }

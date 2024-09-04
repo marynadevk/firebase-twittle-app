@@ -59,6 +59,7 @@ const ChangePassword = () => {
         >
           {field}:
           <input
+            autoComplete={field}
             type="password"
             className="grow font-light text-end"
             name={field}

@@ -7,7 +7,6 @@ export interface IPost {
   imageName?: string;
   authorId: string;
   createdAt: Date;
-  updatedAt?: Date;
   id: string;
   likes: string[];
   dislikes: string[];

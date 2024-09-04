@@ -1,17 +1,26 @@
 'use client';
-import React, { useEffect, useState } from 'react';
+import React, { FC, useEffect, useState } from 'react';
 import PostItem from './PostItem';
-import { getPosts } from '@/api/posts';
+import { getPosts, getUsersPosts } from '@/api/posts';
 import { IPost } from '@/interfaces/IPost';
 
-const PostsList = () => {
+type Props = {
+  authorId?: string;
+};
+
+const PostsList: FC<Props> = ({ authorId }) => {
   const [posts, setPosts] = useState<IPost[]>([]);
 
   useEffect(() => {
     const fetchPosts = async () => {
       try {
+        if (authorId) {
+          const response = await getUsersPosts(authorId);
+          setPosts(response.data);
+        } else {
         const response = await getPosts();
         setPosts(response.data);
+        }
       } catch (error) {
         console.error('Error fetching posts:', error);
       }

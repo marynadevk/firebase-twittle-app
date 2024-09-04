@@ -25,7 +25,6 @@ export class AuthGuard implements CanActivate {
         fullName: claims.name,
         avatarUrl: claims.picture,
       };
-      console.log('Claims', claims);
       return true;
     } catch (error) {
       console.log('Error', error);

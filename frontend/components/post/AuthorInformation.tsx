@@ -8,7 +8,7 @@ type Props = {
 
 const AuthorInformation: FC<Props> = ({ author }) => {
   return (
-    <Link className="flex gap-4 items-center" href={`/user-profile/${author.id}`}>
+    <Link className="flex gap-4 items-center" href={`/profile/${author.id}`}>
       <div className="avatar">
         <div className="w-8 rounded">
           <img src={author.photoUrl} alt="author image" />

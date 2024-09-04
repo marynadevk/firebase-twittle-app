@@ -1,14 +1,14 @@
 import { AuthorDto } from './author.dto';
 
-export class ResponsePostDto {
+export class PostDto {
   title: string;
   text: string;
   image?: string;
+  imageName?: string | '';
   likes: string[] | [];
   dislikes: string[] | [];
   authorId: string;
   createdAt: Date;
-  updatedAt?: Date;
-  id: string;
+  id?: string;
   author: AuthorDto;
 }

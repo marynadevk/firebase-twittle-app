@@ -62,6 +62,7 @@ const PostItem: FC<Props> = ({ post }) => {
         ...updatePostInfo,
         image: url,
         imageName: selectedFile?.name,
+        authorId: post.authorId,
       };
       updatePost(post.id, updatedPost).then(() => {
         setUpdatePosInfo((prevState) => ({
