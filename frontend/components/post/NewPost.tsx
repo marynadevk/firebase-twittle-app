@@ -1,9 +1,11 @@
 'use client';
 import React, { ChangeEvent, FC, useState } from 'react';
-import UploadImg from './UploadImg';
+import UploadImg from '../UploadImg';
 import { ICreatePost } from '@/interfaces/ICreatePost';
 import { createPost } from '@/api/posts';
 import { uploadNewImg } from '@/app/helpers/uploadNewImg';
+import { useAppDispatch } from '@/lib/hooks';
+import { addPost } from '@/lib/features/posts/postsSlice';
 
 type Props = {
   setIsOpen: (value: boolean) => void;
@@ -16,17 +18,21 @@ const NewPost: FC<Props> = ({ setIsOpen }) => {
     text: '',
   });
 
+  const dispatch = useAppDispatch();
+
   const createNewPost = async () => {
     if (!post.text || !post.title) {
       return;
     }
-    const url = await uploadNewImg(file);
+    const image = await uploadNewImg(file);
     const newPost = {
       ...post,
-      image: url,
-      imageName: file?.name,
+      image: image?.url,
+      imageName: image?.fileName,
     };
-    createPost(newPost);
+    createPost(newPost).then((resp) => {
+      dispatch(addPost(resp.data));
+    });
     setIsOpen(false);
     setPost({ title: '', text: '' });
   };

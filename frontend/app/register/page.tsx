@@ -3,95 +3,73 @@
 import { auth } from '@/lib/firebase';
 import { IRegistrationForm } from '@/interfaces/IRegistrationForm';
 import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import React, { ChangeEvent, FormEvent, useEffect, useState } from 'react';
-import GoogleSignIn from '@/components/GoogleSignIn';
+import React, { useState } from 'react';
 import { useLocalStorage } from 'usehooks-ts';
 import { IUser } from '@/interfaces/IUser';
-import { AvatarGenerator } from 'random-avatar-generator';
+import { useForm, FormProvider } from 'react-hook-form';
+import { yupResolver } from '@hookform/resolvers/yup';
+import * as Yup from 'yup';
+import { errMsg } from '../helpers/errorMessages';
+import { toast, ToastContainer } from 'react-toastify';
+import { injectStyle } from 'react-toastify/dist/inject-style';
+import FormFooter from '@/components/FormFooter';
+import NewAvatar from '@/components/NewAvatar';
+
+enum Fields {
+  fullName = 'fullName',
+  email = 'email',
+  password = 'password',
+  confirmPassword = 'confirmPassword',
+}
+
+const validationSchema = Yup.object()
+  .shape({
+    fullName: Yup.string().required(errMsg.required),
+    email: Yup.string().email(errMsg.email).required(errMsg.required),
+    password: Yup.string()
+      .min(6, errMsg.minLength)
+      .max(20, errMsg.maxLength)
+      .required(errMsg.required),
+    confirmPassword: Yup.string().oneOf(
+      [Yup.ref('password')],
+      errMsg.passwordConfirm
+    ).required(errMsg.required),
+    avatarUrl: Yup.string().url(errMsg.invalidUrl),
+  })
+  .required();
 
 const RegisterPage = () => {
-  const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
-  const [formState, setFormState] = useState<IRegistrationForm>({
-    fullName: '',
-    email: '',
-    password: '',
-    confirmPassword: '',
-    avatarUrl: '',
-  });
   const [user, setUser] = useLocalStorage<null | IUser>('user', null);
   const [token, setToken] = useLocalStorage<null | string>('token', null);
   const router = useRouter();
 
-  useEffect(() => {
-    setFormState((prev) => ({
-      ...prev,
-      avatarUrl: generateRandomAvatar(),
-    }));
-  }, []);
+  const methods = useForm<IRegistrationForm>({
+    resolver: yupResolver<IRegistrationForm>(validationSchema),
+  });
 
-  const validateForm = (): boolean => {
-    const newErrors: Record<string, string> = {};
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    formState: { errors },
+  } = methods;
 
-    if (!formState.fullName.trim()) {
-      newErrors.name = 'Name is required';
-    } else if (formState.fullName.length < 3) {
-      newErrors.name = 'Name must be at least 3 characters';
-    }
-
-    if (!formState.email.trim()) {
-      newErrors.email = 'Email is required';
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formState.email)) {
-      newErrors.email = 'Invalid email address';
-    }
-
-    if (formState.password.length < 6) {
-      newErrors.password = 'Password must be at least 6 characters';
-    }
-
-    if (formState.password !== formState.confirmPassword) {
-      newErrors.confirmPassword = 'Passwords do not match';
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const generateRandomAvatar = () => {
-    const generator = new AvatarGenerator();
-    return generator.generateRandomAvatar();
-  };
-
-  const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = event.target;
-    setFormState((prevState) => ({
-      ...prevState,
-      [name]: value,
-    }));
-  };
-
-  const handleSubmit = async (event: FormEvent) => {
-    event.preventDefault();
+  const onSubmit = async (data: IRegistrationForm) => {
     setLoading(true);
 
     try {
-      if (!validateForm()) {
-        setLoading(false);
-        return;
-      }
-
       const userCredentials = await createUserWithEmailAndPassword(
         auth,
-        formState.email,
-        formState.password
+        data.email,
+        data.password
       );
       const currentUser = userCredentials.user;
-
-      updateProfile(currentUser, {
-        displayName: formState.fullName,
-        photoURL: formState.avatarUrl,
+      console.log(data.avatarUrl, data.fullName);
+      await updateProfile(currentUser, {
+        displayName: data.fullName,
+        photoURL: data.avatarUrl,
       });
 
       const token = await currentUser.getIdToken();
@@ -99,136 +77,69 @@ const RegisterPage = () => {
       if (!currentUser) return;
 
       setUser({
-        fullName: formState.fullName || '',
+        fullName: data.fullName || '',
         email: currentUser.email || '',
         uid: currentUser.uid,
-        avatarUrl: formState.avatarUrl || '',
+        avatarUrl: data.avatarUrl || '',
       });
       router.push('/');
-      setErrors({});
     } catch (error) {
-      console.error('Error signing up:', error);
-      setErrors({});
+      toast.error('Error signing up, try again');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleRefreshAvatar = () => {
-    setFormState((prev) => ({
-      ...prev,
-      avatarUrl: generateRandomAvatar(),
-    }));
-  };
+  injectStyle();
+
   return (
-    <div className="flex justify-center items-center h-screen font-primary p-10 m-2">
-      <form
-        onSubmit={handleSubmit}
-        className="flex gap-2 flex-col space-y-4 w-full max-w-2xl shadow-lg p-10 bg-slate-800 text-white text-2xl text-center"
-      >
-        Registration
-        <div className="flex items-center space-y-2 justify-between border border-gray-200 p-2">
-          <img
-            src={formState.avatarUrl}
-            alt="Avatar"
-            className=" rounded-full h-20 w-20"
-          />
-          <button
-            type="button"
-            className="btn btn-outline btn-accent"
-            onClick={handleRefreshAvatar}
+    <>
+      <ToastContainer autoClose={500} />
+      <div className="flex justify-center items-center h-screen font-primary p-10 m-2">
+        <FormProvider {...methods}>
+          <form
+            onSubmit={handleSubmit(onSubmit)}
+            className="flex gap-2 flex-col space-y-4 w-full max-w-2xl shadow-lg p-10 bg-slate-800 text-white text-2xl text-center"
           >
-            New Avatar
-          </button>
-        </div>
-        <div>
-          <label className="label">
-            <span className="text-base label-text text-white">Full Name</span>
-          </label>
-          <input
-            type="text"
-            name="fullName"
-            placeholder="Full Name"
-            className="w-full input input-bordered text-stone-900"
-            value={formState.fullName}
-            onChange={handleChange}
-          />
-          {/* {errors.name && (
-            <span className="text-red-500">{errors.fullName}</span>
-          )} */}
-        </div>
-        <div>
-          <label className="label">
-            <span className="text-base label-text text-white">Email</span>
-          </label>
-          <input
-            autoComplete="username"
-            type="text"
-            name="email"
-            placeholder="Email"
-            className="w-full input input-bordered text-stone-900"
-            value={formState.email}
-            onChange={handleChange}
-          />
-          {/* {errors.email && <span className="text-red-500">{errors.email}</span>} */}
-        </div>
-        <div>
-          <label className="label">
-            <span className="text-base label-text text-white">Password</span>
-          </label>
-          <input
-            autoComplete="new-password"
-            type="password"
-            name="password"
-            placeholder="Enter Password"
-            className="w-full input input-bordered text-stone-900"
-            value={formState.password}
-            onChange={handleChange}
-          />
-          {/* {errors.password && (
-            <span className="text-red-500">{errors.password}</span>
-          )} */}
-        </div>
-        <div>
-          <label className="label">
-            <span className="text-base label-text text-white">
-              Confirm Password
-            </span>
-          </label>
-          <input
-            autoComplete="new-password"
-            type="password"
-            name="confirmPassword"
-            placeholder="Confirm Password"
-            className="w-full input input-bordered text-stone-900"
-            value={formState.confirmPassword}
-            onChange={handleChange}
-          />
-          {/* {errors.confirmPassword && (
-            <span className="text-red-500">{errors.confirmPassword}</span>
-          )} */}
-        </div>
-        <div className="flex gap-5 justify-center">
-          <button type="submit" className="btn btn-outline btn-accent">
-            {loading ? (
-              <span className="loading loading-spinner loading-sm"></span>
-            ) : (
-              'Sign Up'
-            )}
-          </button>
-          <GoogleSignIn />
-        </div>
-        <span className="font-extralight text-sm">
-          Already have an account?{' '}
-          <Link
-            href="/login"
-            className="text-blue-600 hover:text-blue-800 hover:underline"
-          >
-            Login
-          </Link>
-        </span>
-      </form>
-    </div>
+            Registration
+            <NewAvatar setValue={setValue} />
+            {Object.values(Fields).map((field) => (
+              <div key={field}>
+                <label className="label">
+                  <span className="text-base label-text text-white">
+                    {field}
+                  </span>
+                </label>
+                <input
+                  type={
+                    field === Fields.password ||
+                    field === Fields.confirmPassword
+                      ? 'password'
+                      : 'text'
+                  }
+                  placeholder={field}
+                  className="w-full input input-bordered text-stone-900"
+                  {...register(field)}
+                />
+                {errors[field] && (
+                  <p className="text-red-500 font-extralight text-xs">
+                    {errors[field]?.message}
+                  </p>
+                )}
+              </div>
+            ))}
+            <button type="submit" className="btn btn-outline btn-accent">
+              {loading ? (
+                <span className="loading loading-spinner loading-sm"></span>
+              ) : (
+                'Sign Up'
+              )}
+            </button>
+            <FormFooter formType="register" />
+          </form>
+        </FormProvider>
+      </div>
+    </>
   );
 };
 

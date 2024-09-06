@@ -46,22 +46,3 @@ api.interceptors.response.use(
 );
 
 export default api;
-
-
-// api.interceptors.response.use(
-//   (response) => response,
-//   async (error) => {
-//     const originalRequest = error.config;
-//     if (
-//       error.response &&
-//       error.response.status === 401 &&
-//       error.config &&
-//       !error.config._isRetry
-//     ) {
-//       // Handle the 401 error here
-//       originalRequest._isRetry = true;
-//       // Optionally, you can refresh the token here and retry the request
-//     }
-//     return Promise.reject(error);
-//   }
-// );

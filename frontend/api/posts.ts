@@ -1,6 +1,5 @@
 import { ICreatePost } from '@/interfaces/ICreatePost';
 import api from './client';
-import { IPost } from '@/interfaces/IPost';
 
 export const createPost = (post: ICreatePost) => {
   return api.post('/posts', post);
@@ -9,9 +8,12 @@ export const createPost = (post: ICreatePost) => {
 export const getPosts = () => {
   return api.get('/posts');
 };
+export const getPostById = (id: string) => {
+  return api.get(`/posts/${id}`);
+};
 
 export const getUsersPosts = (userId: string) => {
-  return api.get(`/posts/${userId}`);
+  return api.get(`/posts/user/${userId}`);
 };
 
 export const updatePost = (id: string, post: ICreatePost) => {

@@ -12,12 +12,15 @@ import { deleteImgFromStorage } from '@/app/helpers/deleteImgFromStorage';
 import AuthenticatedActions from './AuthenticatedActions';
 import { AiFillDislike, AiFillLike } from 'react-icons/ai';
 import AuthorInformation from './AuthorInformation';
+import { useAppDispatch } from '@/lib/hooks';
+import { removePost } from '@/lib/features/posts/postsSlice';
 
 type Props = {
   post: IPost;
+  isAddComment?: boolean;
 };
 
-const PostItem: FC<Props> = ({ post }) => {
+const PostItem: FC<Props> = ({ post, isAddComment }) => {
   const {
     image,
     imageName,
@@ -29,20 +32,21 @@ const PostItem: FC<Props> = ({ post }) => {
     dislikes = [],
     author,
   } = post;
-  const [updatePostInfo, setUpdatePosInfo] = useState<ICreatePost>({
+  const [updatePostInfo, setUpdatePostInfo] = useState<ICreatePost>({
     title,
     text,
     image,
     likes,
     dislikes,
   });
+
   const postedAt = new Date(createdAt).toISOString().split('T')[0];
   const [user] = useLocalStorage<null | IUser>('user', null);
   const [isEdit, setIsEdit] = useState(false);
   const [isAuthor, setIsAuthor] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [token] = useLocalStorage('token', null);
-
+  const dispatch = useAppDispatch();
   useEffect(() => {
     setIsAuthor(() => {
       return user?.uid === authorId;
@@ -54,20 +58,20 @@ const PostItem: FC<Props> = ({ post }) => {
   };
   const handleSave = () => {
     if (!updatePostInfo) return;
-    uploadNewImg(selectedFile).then((url) => {
-      if (!url) {
-        url = image;
+    uploadNewImg(selectedFile).then((uploadedImage) => {
+      if (!uploadedImage) {
+        uploadedImage = {url: image, fileName: imageName};
       }
       const updatedPost = {
         ...updatePostInfo,
-        image: url,
-        imageName: selectedFile?.name,
+        image: uploadedImage.url,
+        imageName: uploadedImage.fileName,
         authorId: post.authorId,
       };
       updatePost(post.id, updatedPost).then(() => {
-        setUpdatePosInfo((prevState) => ({
+        setUpdatePostInfo((prevState) => ({
           ...prevState,
-          imageName: selectedFile?.name,
+          imageName: uploadedImage.fileName,
         }));
         if (!imageName) return;
       });
@@ -79,21 +83,22 @@ const PostItem: FC<Props> = ({ post }) => {
     event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     const { name, value } = event.target;
-    setUpdatePosInfo((prevState) => ({
+    setUpdatePostInfo((prevState) => ({
       ...prevState,
       [name]: value,
     }));
   };
 
   const handleDelete = () => {
+    dispatch(removePost(post.id));
     deletePost(post.id);
     if (!imageName) return;
     deleteImgFromStorage(imageName);
   };
 
   return (
-    <div className="card card-compact w-full shadow-xl flex justify-start bg-gray-200">
-      <div className="card-actions flex justify-between items-center p-4">
+    <div className="card p-1 w-full shadow-xl flex justify-start bg-gray-200">
+      <div className="card-actions flex justify-between items-center p-2">
         <AuthorInformation author={author} />
         <div className="flex items-center">
           {isAuthor && (
@@ -107,19 +112,21 @@ const PostItem: FC<Props> = ({ post }) => {
           <div className="badge badge-ghost">Posted on {postedAt}</div>
         </div>
       </div>
-      <div className="divider divider-accent mb-0 mt-0 m-3" />
+      <div className="divider divider-accent mb-0 mt-0 m-2" />
       <figure className="flex justify-start content-start w-36">
         {image && <img src={updatePostInfo.image} alt="post-image" />}
       </figure>
-      <div className="card-body">
+      <div className="card-body p-1">
         {isEdit ? (
           <>
             <input
+              type="text"
               name="title"
               onChange={handleChangePost}
               value={updatePostInfo.title}
             />
             <textarea
+              typeof="text"
               name="text"
               onChange={handleChangePost}
               value={updatePostInfo.text}
@@ -127,10 +134,16 @@ const PostItem: FC<Props> = ({ post }) => {
             <UploadImg file={selectedFile} setFile={setSelectedFile} isEdit />
           </>
         ) : (
-          <>
-            <h2 className="card-title">{updatePostInfo.title}</h2>
-            <p>{updatePostInfo.text}</p>
-          </>
+          <div className="collapse collapse-arrow join-item border-base-300 border">
+            <input type="radio" name="my-accordion-4" defaultChecked />
+            <h2 className="collapse-title text-xl font-medium flex justify-between items-center">
+              {updatePostInfo.title}
+              <span className='font-extralight text-sm'>show text</span>
+            </h2>
+            <div className="collapse-content">
+              <p>{updatePostInfo.text}</p>
+            </div>
+          </div>
         )}
         <hr />
         <PostActionsBar>
@@ -149,6 +162,7 @@ const PostItem: FC<Props> = ({ post }) => {
             </div>
           )}
         </PostActionsBar>
+        {isAddComment && <div className="comment-form"></div>}
       </div>
     </div>
   );

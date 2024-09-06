@@ -10,6 +10,8 @@
     "deploy": "firebase deploy --only hosting"
   },
   "dependencies": {
+    "@hookform/resolvers": "^3.9.0",
+    "@reduxjs/toolkit": "^2.2.7",
     "axios": "^1.7.4",
     "dotenv": "^16.4.5",
     "firebase": "^10.13.0",
@@ -19,12 +21,17 @@
     "react-dom": "^18",
     "react-hook-form": "^7.53.0",
     "react-icons": "^5.3.0",
-    "usehooks-ts": "^3.1.0"
+    "react-redux": "^9.1.2",
+    "react-toastify": "^10.0.5",
+    "redux": "^5.0.1",
+    "usehooks-ts": "^3.1.0",
+    "yup": "^1.4.0"
   },
   "devDependencies": {
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
+    "@types/react-redux": "^7.1.33",
     "daisyui": "^4.12.10",
     "eslint": "^8",
     "eslint-config-next": "14.2.5",

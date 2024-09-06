@@ -8,13 +8,15 @@ import GoBack from '@/components/GoBack';
 
 const UserProfilePage = ({ params }: { params: { id: string } }) => {
   const { id } = params;
-  console.log('id:', id);
   return (
     <>
       <Header />
       <div className="flex">
         <LeftSide>
-          <div className="flex flex-col justify-center gap-5">
+          <div className="flex flex-col justify-center gap-5 w-full">
+            <div className="flex justify-center text-white text-lg">
+              <span>Profile page</span>
+            </div>
             <GoBack />
             <Profile userId={id} />
           </div>

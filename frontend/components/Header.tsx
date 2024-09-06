@@ -1,6 +1,9 @@
 'use client';
 import { IUser } from '@/interfaces/IUser';
-import React, { useEffect, useState } from 'react';
+import { auth } from '@/lib/firebase';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 import { useLocalStorage } from 'usehooks-ts';
 
 const Header = () => {
@@ -9,24 +12,25 @@ const Header = () => {
     'user',
     null
   );
+  const router = useRouter();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   useEffect(() => {
     setIsAuthenticated(!!token);
   }, [token]);
 
-
-
   const logout = () => {
+    auth.signOut();
+    router.push('/');
     removeToken();
     removeUser();
   };
 
   return (
     <header className="flex justify-between items-center h-16 w-full p-4 bg-gray-800">
-      <div className="flex items-center">
+      <Link href="/" className="flex items-center">
         <img src="./logo.png" className="w-8 h-8 mr-2" />
         <h1 className="text-2xl font-bold text-white">Twittle</h1>
-      </div>
+      </Link>
       {isAuthenticated && (
         <button className="btn btn-outline btn-accent" onClick={logout}>
           Logout

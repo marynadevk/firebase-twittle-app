@@ -8,6 +8,8 @@ import {
 import { BiComment } from 'react-icons/bi';
 import { updatePostLike, updatePostDislike } from '@/api/posts';
 import { auth } from '@/lib/firebase';
+import Link from 'next/link';
+import { toast } from 'react-toastify';
 type Props = {
   likes: string[];
   dislikes: string[];
@@ -25,7 +27,7 @@ const AuthenticatedActions: FC<Props> = ({ likes = [], dislikes = [], id }) => {
       const updatedPost = await updatePostLike(id);
       updateReaction(updatedPost.data);
     } catch (error) {
-      console.error('Error liking post:', error);
+      toast.error('Error liking post');
     }
   };
 
@@ -34,7 +36,7 @@ const AuthenticatedActions: FC<Props> = ({ likes = [], dislikes = [], id }) => {
       const updatedPost = await updatePostDislike(id);
       updateReaction(updatedPost.data);
     } catch (error) {
-      console.error('Error disliking post:', error);
+      toast.error('Error disliking post');
     }
   };
 
@@ -57,9 +59,9 @@ const AuthenticatedActions: FC<Props> = ({ likes = [], dislikes = [], id }) => {
         {hasDisliked ? <AiFillDislike /> : <AiOutlineDislike />}
         <span>{dislikesCount}</span>
       </button>
-      <button className="btn btn-ghost btn-sm">
+      <Link href={`/post/${id}`} className="btn btn-ghost btn-sm">
         <BiComment />
-      </button>
+      </Link>
     </div>
   );
 };

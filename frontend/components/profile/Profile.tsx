@@ -30,7 +30,6 @@ const Profile: FC<Props> = ({ userId = auth.currentUser?.uid }) => {
     if (userId) {
       getUser(userId).then((user) => {
         const {name, photoUrl} = user.data;
-
         setProfileData({
           displayName: name,
           photoURL: photoUrl,

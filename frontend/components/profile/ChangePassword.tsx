@@ -47,7 +47,6 @@ const ChangePassword = () => {
       )
     );
     updatePassword(currentUser, passwordData.newPassword);
-    console.log('Save changes');
   };
 
   return (

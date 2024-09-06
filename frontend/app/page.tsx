@@ -3,7 +3,7 @@
 import AddBtn from '@/components/AddBtn';
 import Header from '@/components/Header';
 import LeftSide from '@/components/LeftSide';
-import NewPost from '@/components/NewPost';
+import NewPost from '@/components/post/NewPost';
 import PostsList from '@/components/post/PostsList';
 import Profile from '@/components/profile/Profile';
 import Link from 'next/link';
@@ -31,11 +31,14 @@ const Home = () => {
                 </Link>
               </button>
               <button className="btn btn-outline btn-accent">
-                <Link className="w-full" href="/login">Sign in</Link>
+                <Link className="w-full" href="/login">
+                  Sign in
+                </Link>
               </button>
             </div>
           ) : (
-            <div className="flex flex-col align-top font-primary gap-5 m-2 items-center w-full">
+            <div className="flex flex-col align-top font-primary gap-5 m-2 items-center w-full text-white text-lg">
+              Home page
               <Profile />
               {!isOpen && <AddBtn setIsOpen={setIsOpen} />}
             </div>

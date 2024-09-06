@@ -1,16 +1,26 @@
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { storage } from '@/lib/firebase';
+import { toast } from 'react-toastify';
 
-export const uploadNewImg = async (file: File | null) => {
-  if (!file) return;
-  const storageRef = ref(storage, `images/${file.name}`);
+export interface IUploadNewImg {
+  fileName: string | undefined;
+  url: string | undefined;
+}
+
+export const uploadNewImg = async (
+  file: File | null
+): Promise<IUploadNewImg | null> => {
+  if (!file) return null;
+  const fileName = Date.now() + file.name;
+  const storageRef = ref(storage, `images/${fileName}`);
 
   try {
     await uploadBytes(storageRef, file);
     const url = await getDownloadURL(storageRef);
-    console.log('File Uploaded Successfully');
-    return url;
+
+    return { fileName, url };
   } catch (error) {
-    console.error('Error uploading the file', error);
+    toast.error('Error uploading the file');
+    return null;
   }
 };
