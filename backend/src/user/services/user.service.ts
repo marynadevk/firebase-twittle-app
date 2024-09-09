@@ -12,8 +12,7 @@ export class UserService {
   }
 
   async getUser(userId: string): Promise<AuthorDto> {
-    const user = (await this.auth.getUsers([{ uid: userId }])).users[0];
-
+    const user = await this.auth.getUser(userId);
     return {
       id: user.uid,
       name: user.displayName,

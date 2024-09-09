@@ -49,7 +49,7 @@ const Profile: FC<Props> = ({ userId = auth.currentUser?.uid }) => {
             <img src={profileData.photoURL as string} />
           </div>
         </div>
-        <div className="badge badge-accent badge-outline">
+        <div className="badge badge-lg badge-accent badge-outline">
           {profileData.displayName}
         </div>
       </Link>

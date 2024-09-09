@@ -11,4 +11,5 @@ export interface IPost {
   likes: string[];
   dislikes: string[];
   author: IAuthor;
+  comments?: string[];
 }

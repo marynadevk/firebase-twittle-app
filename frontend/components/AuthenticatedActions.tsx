@@ -13,12 +13,13 @@ import { toast } from 'react-toastify';
 type Props = {
   likes: string[];
   dislikes: string[];
+  comments: string[];
   id: string;
 };
 
-const AuthenticatedActions: FC<Props> = ({ likes = [], dislikes = [], id }) => {
-  const [likesCount, setLikesCount] = useState<number>(likes.length);
-  const [dislikesCount, setDislikesCount] = useState<number>(dislikes.length);
+const AuthenticatedActions: FC<Props> = ({ likes = [], dislikes = [], id, comments = [] }) => {
+  const [likesCount, setLikesCount] = useState(likes.length);
+  const [dislikesCount, setDislikesCount] = useState(dislikes.length);
   const [hasLiked, setHasLiked] = useState(likes.includes(auth.currentUser?.uid || ''));
   const [hasDisliked, setHasDisliked] = useState(dislikes.includes(auth.currentUser?.uid || ''));
 
@@ -61,6 +62,7 @@ const AuthenticatedActions: FC<Props> = ({ likes = [], dislikes = [], id }) => {
       </button>
       <Link href={`/post/${id}`} className="btn btn-ghost btn-sm">
         <BiComment />
+        <span>{comments.length}</span>
       </Link>
     </div>
   );

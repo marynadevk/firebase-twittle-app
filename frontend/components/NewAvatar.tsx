@@ -17,7 +17,6 @@ const NewAvatar: FC<Props> = ({setValue}) => {
   const [avatarUrl, setAvatarUrl] = useState<string>(generateRandomAvatar());
 
   useEffect(() => {
-    console.log(avatarUrl);
     setValue('avatarUrl', avatarUrl);
   }, []);
 

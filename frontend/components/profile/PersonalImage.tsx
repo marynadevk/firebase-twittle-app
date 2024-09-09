@@ -21,9 +21,9 @@ const PersonalImage: FC<Props> = ({ avatarUrl }) => {
 
       if (!auth.currentUser) return;
 
-      uploadNewImg(file).then((url) => {
+      uploadNewImg(file).then((image) => {
         updateProfile(auth.currentUser as User, {
-          photoURL: url,
+          photoURL: image?.url,
         }).then(() => {});
       });
       reader.readAsDataURL(file);

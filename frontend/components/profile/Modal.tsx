@@ -94,7 +94,7 @@ const Modal: FC<Props> = ({ isOpen, setIsOpen }) => {
                         </button>
                       </div>
                     ) : (
-                      <label className="input input-bordered input-accent flex items-center font-semibold w-96">
+                      <label className="input input-bordered input-accent flex items-center font-semibold text-stone-800 w-96">
                         {field}:
                         <input
                           type="text"

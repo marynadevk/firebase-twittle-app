@@ -6,10 +6,15 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { app } from 'firebase-admin';
+import { Auth } from 'firebase-admin/auth';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
-  constructor(@Inject('FIREBASE_APP') private firebaseApp: app.App) {}
+  private auth: Auth;
+  
+  constructor(@Inject('FIREBASE_APP') private firebaseApp: app.App) {
+    this.auth = firebaseApp.auth();
+  }
 
   async canActivate(context: ExecutionContext) {
     const request = context.switchToHttp().getRequest();
@@ -19,11 +24,12 @@ export class AuthGuard implements CanActivate {
     }
     const idToken = authHeader.split(' ')[1];
     try {
-      const claims = await this.firebaseApp.auth().verifyIdToken(idToken);
+      const claims = await this.auth.verifyIdToken(idToken);
+      const user = await this.auth.getUser(claims.uid);
       request.user = {
         uid: claims.uid,
-        fullName: claims.name,
-        avatarUrl: claims.picture,
+        fullName: user.displayName,
+        avatarUrl: user.photoURL,
       };
       return true;
     } catch (error) {

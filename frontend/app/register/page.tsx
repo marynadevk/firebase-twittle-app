@@ -66,7 +66,6 @@ const RegisterPage = () => {
         data.password
       );
       const currentUser = userCredentials.user;
-      console.log(data.avatarUrl, data.fullName);
       await updateProfile(currentUser, {
         displayName: data.fullName,
         photoURL: data.avatarUrl,

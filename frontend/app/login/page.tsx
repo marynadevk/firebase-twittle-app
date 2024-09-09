@@ -1,6 +1,5 @@
 'use client';
 
-import { useState } from 'react';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
 import { ILoginFormState } from '@/interfaces/ILoginFormState';
@@ -15,6 +14,8 @@ import { errMsg } from '../helpers/errorMessages';
 import FormFooter from '@/components/FormFooter';
 import { toast, ToastContainer } from 'react-toastify';
 import { injectStyle } from 'react-toastify/dist/inject-style';
+import { startLoading, stopLoading } from '@/lib/features/loader/loaderSlice';
+import { useAppDispatch, useAppSelector } from '@/lib/hooks';
 
 enum Fields {
   email = 'email',
@@ -32,13 +33,14 @@ const validationSchema = Yup.object()
   .required();
 
 const LoginPage = () => {
-  const [loading, setLoading] = useState(false);
   const router = useRouter();
   const [token, setToken] = useLocalStorage<null | string>('token', null);
   const [user, setUser] = useLocalStorage<null | IUser>('user', null);
   const methods = useForm<ILoginFormState>({
     resolver: yupResolver(validationSchema),
   });
+  const { isLoading } = useAppSelector((state) => state.loader);
+  const dispatch = useAppDispatch();
 
   const {
     register,
@@ -46,10 +48,8 @@ const LoginPage = () => {
     formState: { errors },
   } = methods;
 
-  injectStyle();
-
   const onSubmit = async (data: ILoginFormState) => {
-    setLoading(true);
+    dispatch(startLoading());
     try {
       const userCredentials = await signInWithEmailAndPassword(
         auth,
@@ -73,13 +73,14 @@ const LoginPage = () => {
     } catch {
       toast.error('Invalid email or password');
     } finally {
-      setLoading(false);
+      dispatch(stopLoading());
     }
   };
+  injectStyle();
 
   return (
     <>
-      <ToastContainer autoClose={5000} />
+      <ToastContainer autoClose={500} />
 
       <div className="flex justify-center items-center h-screen font-primary p-10 m-2 ">
         <FormProvider {...methods}>
@@ -109,7 +110,7 @@ const LoginPage = () => {
               </div>
             ))}
             <button type="submit" className="btn btn-outline btn-accent">
-              {loading ? (
+              {isLoading ? (
                 <span className="loading loading-spinner loading-sm"></span>
               ) : (
                 'Sign In'

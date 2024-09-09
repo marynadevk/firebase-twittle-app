@@ -4,10 +4,6 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 interface IPostsState {
   posts: IPost[];
 }
-interface LoadUsersPostsPayload {
-  posts: IPost[];
-  authorId: string;
-}
 
 const initialState: IPostsState = {
   posts: [],
@@ -18,10 +14,10 @@ export const postsSlice = createSlice({
   initialState,
   reducers: {
     loadPosts: (state: IPostsState, action: PayloadAction<IPost[]>) => {
-      state.posts = action.payload;
+      state.posts = [...action.payload];
     },
-    loadUsersPosts: (state: IPostsState, action: PayloadAction<LoadUsersPostsPayload>) => {
-      state.posts = action.payload.posts.filter((post) => post.authorId === action.payload.authorId);
+    getMorePosts: (state: IPostsState, action: PayloadAction<IPost[]>) => {
+      state.posts = [...state.posts, ...action.payload];
     },
     addPost: (state: IPostsState, action: PayloadAction<IPost>) => {
       state.posts.unshift(action.payload);
@@ -32,5 +28,5 @@ export const postsSlice = createSlice({
   },
 });
 
-export const { loadPosts, addPost, removePost, loadUsersPosts } = postsSlice.actions;
+export const { loadPosts, addPost, removePost, getMorePosts } = postsSlice.actions;
 export default postsSlice.reducer;

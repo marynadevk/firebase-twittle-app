@@ -4,6 +4,7 @@ import { UserController } from './controllers/user.controller';
 import { FirebaseModule } from 'src/firebase/firebase.module';
 
 @Module({
+  exports: [UserService],
   providers: [UserService],
   controllers: [UserController],
   imports: [FirebaseModule],

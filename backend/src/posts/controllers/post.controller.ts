@@ -7,6 +7,7 @@ import {
   Param,
   Post,
   Put,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from 'src/auth/guards/auth.guard';
@@ -15,7 +16,6 @@ import { User } from 'src/decorators/user.decorator';
 import { UserInfoDto } from 'src/user/dtos/user-info.dto';
 import { PostDto } from '../dtos/post.dto';
 
-const START_PAGE = 0;
 const PAGE_SIZE = 5;
 @Controller('posts')
 export class PostController {
@@ -29,19 +29,16 @@ export class PostController {
 
   @Get()
   async getPosts(
-    @Param('page') page: number = START_PAGE,
-    @Param('size') size: number = PAGE_SIZE,
+    @Query('size') size: number = PAGE_SIZE,
+    @Query('userId') userId?: string,
+    @Query('lastDoc') lastDoc?: string,
   ) {
-    return this.postService.getPosts(page, size);
+    return this.postService.getPosts(size, userId, lastDoc);
   }
 
-  @Get('/:userId')
-  async getUsersPosts(
-    @Param('userId') id: string,
-    @Param('page') page: number = START_PAGE,
-    @Param('size') size: number = PAGE_SIZE,
-  ) {
-    return this.postService.getUsersPosts(id, page, size);
+  @Get('/:id')
+  async getPostById(@Param('id') id: string) {
+    return this.postService.getPostById(id);
   }
 
   @Put('/:id')

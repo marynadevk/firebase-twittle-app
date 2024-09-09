@@ -6,6 +6,7 @@ import {
 } from 'firebase/auth';
 import React, { FormEvent, useState } from 'react';
 import { MdDone } from 'react-icons/md';
+import { toast } from 'react-toastify';
 
 enum Fields {
   OLDPASSWORD = 'oldPassword',
@@ -34,7 +35,7 @@ const ChangePassword = () => {
     const comparePasswords =
       passwordData.newPassword === passwordData.confirmPassword;
     if (!comparePasswords) {
-      console.log('Passwords don`t match');
+      toast.error('Passwords don`t match');
       return;
     }
     if (!currentUser) return;
@@ -54,7 +55,7 @@ const ChangePassword = () => {
       {Object.values(Fields).map((field) => (
         <label
           key={field}
-          className="input input-bordered input-accent flex items-center font-semibold text-sm"
+          className="input input-bordered input-accent flex items-center font-semibold text-stone-800 text-sm"
         >
           {field}:
           <input

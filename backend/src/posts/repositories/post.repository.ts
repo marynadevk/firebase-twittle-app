@@ -1,6 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { app } from 'firebase-admin';
-import { Firestore, Timestamp } from 'firebase-admin/firestore';
+import { Firestore } from 'firebase-admin/firestore';
+import { FirestoreDoc } from '../services/post.service';
 
 @Injectable()
 export class PostRepository {
@@ -16,30 +17,28 @@ export class PostRepository {
     return (await this.postCollection.add(data)).id;
   }
 
-  async getPosts(page: number, size: number) {
-    const postCollection = this.postCollection.orderBy('createdAt', 'desc');
-    // .startAt(Timestamp.now())
-    // .limit(size);
-
-    return (await postCollection.get()).docs;
-  }
-
-  async getUsersPosts(userId: string, page: number, size: number) {
-    const posts = await this.postCollection
-      .where('authorId', '==', userId)
+  async getPosts(size: number, userId: string, lastDoc?: FirestoreDoc) {
+    let query = this.postCollection
       .orderBy('createdAt', 'desc')
-      // .startAt(page * size)
-      // .limit(size)
-      .get();
-
-    return posts.docs;
+      .limit(Number(size));
+    if (userId) {
+      query = query.where('authorId', '==', userId);
+    }
+    if (lastDoc) {
+      query = query.startAfter(lastDoc);
+    }
+    const posts = (await query.get()).docs;
+    const lastPosts = posts[posts.length - 1];
+    return {
+      posts,
+      lastDoc: lastPosts,
+    };
   }
 
   async updatePost(id: string, data: any) {
-    const postCollection = this.db.collection('posts');
-    return await postCollection.doc(id).update({
+    return await this.postCollection.doc(id).update({
       title: data.title,
-      image: data.image,
+      image: data.image || '',
       imageName: data.imageName || '',
       text: data.text,
     });
@@ -52,13 +51,29 @@ export class PostRepository {
     });
   }
 
+  async addCommentId(id: string, commentId: string) {
+    const post = await this.getPostById(id);
+    const comments = post?.comments || [];
+    return await this.postCollection.doc(id).update({
+      comments: [...comments, commentId],
+    });
+  }
+
+  async removeCommentId(id: string, commentId: string) {
+    const post = await this.getPostById(id);
+    const comments = post?.comments || [];
+    return await this.postCollection.doc(id).update({
+      comments: comments.filter((id: string) => id !== commentId),
+    });
+  }
+
   async getPostById(id: string) {
-    const postCollection = this.db.collection('posts');
+    const postCollection = this.postCollection;
     return (await postCollection.doc(id).get()).data();
   }
 
   async deletePost(id: string) {
-    const postCollection = this.db.collection('posts');
+    const postCollection = this.postCollection;
     return await postCollection.doc(id).delete();
   }
 }

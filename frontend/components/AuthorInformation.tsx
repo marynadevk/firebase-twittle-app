@@ -7,6 +7,9 @@ type Props = {
 };
 
 const AuthorInformation: FC<Props> = ({ author }) => {
+  if (!author) {
+    return null;
+  }
   return (
     <Link className="flex gap-4 items-center" href={`/profile/${author.id}`}>
       <div className="avatar">
@@ -14,7 +17,7 @@ const AuthorInformation: FC<Props> = ({ author }) => {
           <img src={author.photoUrl} alt="author image" />
         </div>
       </div>
-      <div className="badge badge-accent badge-outline">{author.name}</div>
+      <div className="badge badge-lg badge-accent badge-outline">{author.name}</div>
     </Link>
   );
 };

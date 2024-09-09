@@ -20,15 +20,15 @@ const Header = () => {
 
   const logout = () => {
     auth.signOut();
-    router.push('/');
     removeToken();
     removeUser();
+    router.push('/');
   };
 
   return (
     <header className="flex justify-between items-center h-16 w-full p-4 bg-gray-800">
       <Link href="/" className="flex items-center">
-        <img src="./logo.png" className="w-8 h-8 mr-2" />
+        <img src="/logo.png" className="w-8 h-8 mr-2" />
         <h1 className="text-2xl font-bold text-white">Twittle</h1>
       </Link>
       {isAuthenticated && (

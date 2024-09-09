@@ -6,6 +6,8 @@ import LeftSide from '@/components/LeftSide';
 import NewPost from '@/components/post/NewPost';
 import PostsList from '@/components/post/PostsList';
 import Profile from '@/components/profile/Profile';
+import { startLoading, stopLoading } from '@/lib/features/loader/loaderSlice';
+import { useAppDispatch, useAppSelector } from '@/lib/hooks';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { useLocalStorage } from 'usehooks-ts';

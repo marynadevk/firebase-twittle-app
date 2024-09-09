@@ -1,13 +1,13 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { UserInfoDto } from 'src/user/dtos/user-info.dto';
-
 import { Firestore, Timestamp } from 'firebase-admin/firestore';
 import { app } from 'firebase-admin';
-
 import { Auth } from 'firebase-admin/auth';
 import { PostRepository } from '../repositories/post.repository';
 import { PostDto } from '../dtos/post.dto';
+import { UserService } from 'src/user/services/user.service';
 
+export interface FirestoreDoc extends FirebaseFirestore.QueryDocumentSnapshot {}
 @Injectable()
 export class PostService {
   private db: Firestore;
@@ -16,6 +16,7 @@ export class PostService {
   constructor(
     @Inject('FIREBASE_APP') private firebaseApp: app.App,
     @Inject() private postRepository: PostRepository,
+    @Inject() private userService: UserService,
   ) {
     this.db = firebaseApp.firestore();
     this.auth = firebaseApp.auth();
@@ -31,6 +32,7 @@ export class PostService {
       createdAt: Timestamp.fromDate(new Date()),
       likes: [],
       dislikes: [],
+      comments: [],
     };
     const id = await this.postRepository.createPost(newPost);
 
@@ -48,53 +50,43 @@ export class PostService {
     };
   }
 
-  async getPosts(page: number, size: number): Promise<PostDto[]> {
-    const authors = [];
-    const posts = await this.postRepository.getPosts(page, size);
-    const postsData = posts.map((post) => {
-      const data = post.data();
-      authors.push({ uid: data.authorId });
-      return {
-        id: post.id,
-        authorId: data.authorId,
-        title: data.title,
-        image: data.image,
-        imageName: data.imageName,
-        text: data.text,
-        createdAt: data.createdAt.toDate(),
-        likes: data.likes,
-        dislikes: data.dislikes,
-        author: { id: '', name: '', photoUrl: '' },
-      };
-    });
+  async getPostById(id: string): Promise<PostDto> {
+    const post = await this.postRepository.getPostById(id);
+    if (!post) {
+      throw new Error('Post not found!!!');
+    }
+    const author = await this.userService.getUser(post.authorId);
 
-    const result = await this.auth.getUsers(authors);
-    postsData.forEach((post) => {
-      const author = result.users.filter(
-        (user) => user.uid === post.authorId,
-      )[0];
-      if (author) {
-        post.author = {
-          name: author.displayName,
-          photoUrl: author.photoURL,
-          id: author.uid,
-        };
-      }
-    });
-
-    return postsData;
+    return {
+      title: post.title,
+      text: post.text,
+      likes: post.likes,
+      dislikes: post.dislikes,
+      authorId: post.authorId,
+      author,
+      createdAt: post.createdAt.toDate(),
+      id,
+      comments: post.comments || [],
+    };
   }
 
-  async getUsersPosts(
-    userId: string,
-    page: number,
+  async getPosts(
     size: number,
-  ): Promise<PostDto[]> {
-    const authors = [];
-    const posts = await this.postRepository.getUsersPosts(userId, page, size);
-    const postsData = posts.map((post) => {
+    userId?: string,
+    lastDoc?: string,
+  ): Promise<{ posts: PostDto[]; lastDoc: FirestoreDoc }> {
+    let lastDocSnapshot: FirestoreDoc | undefined;
+    if (lastDoc) {
+      lastDocSnapshot = await this.convertStringToDocSnapshot(lastDoc);
+    }
+    const { posts, lastDoc: newLastDoc } = await this.postRepository.getPosts(
+      size,
+      userId,
+      lastDocSnapshot,
+    );
+    const postsData = posts.map(async (post) => {
       const data = post.data();
-      authors.push({ uid: data.authorId });
+      const author = await this.userService.getUser(data.authorId);
       return {
         id: post.id,
         authorId: data.authorId,
@@ -105,25 +97,12 @@ export class PostService {
         createdAt: data.createdAt.toDate(),
         likes: data.likes,
         dislikes: data.dislikes,
-        author: { id: '', name: '', photoUrl: '' },
+        author,
+        comments: data.comments,
       };
     });
 
-    const result = await this.auth.getUsers(authors);
-    postsData.forEach((post) => {
-      const author = result.users.filter(
-        (user) => user.uid === post.authorId,
-      )[0];
-      if (author) {
-        post.author = {
-          name: author.displayName,
-          photoUrl: author.photoURL,
-          id: author.uid,
-        };
-      }
-    });
-
-    return postsData;
+    return { posts: await Promise.all(postsData), lastDoc: newLastDoc.id };
   }
 
   async updatePost(id: string, input: PostDto, user: UserInfoDto) {
@@ -138,7 +117,8 @@ export class PostService {
     if (post.authorId !== user.uid) {
       throw new Error('You are not the author of this post');
     }
-    return this.postRepository.deletePost(id);
+
+    this.postRepository.deletePost(id);
   }
 
   async likePost(postId: string, userId: string) {
@@ -179,5 +159,19 @@ export class PostService {
       post.dislikes,
     );
     return post;
+  }
+
+  async addCommentId(postId: string, commentId: string) {
+    this.postRepository.addCommentId(postId, commentId);
+  }
+
+  async removeCommentId(postId: string, commentId: string) {
+    this.postRepository.removeCommentId(postId, commentId);
+  }
+
+  async convertStringToDocSnapshot(lastDoc: string): Promise<FirestoreDoc> {
+    const posts = this.db.collection('posts').doc(lastDoc);
+    const lastDocSnap = await posts.get();
+    return lastDocSnap as FirestoreDoc;
   }
 }

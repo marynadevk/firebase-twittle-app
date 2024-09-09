@@ -5,9 +5,8 @@ import { AuthModule } from './auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
 import { FirebaseModule } from './firebase/firebase.module';
 import { PostModule } from './posts/post.module';
-import { UserService } from './user/services/user.service';
-import { UserController } from './user/controllers/user.controller';
 import { UserModule } from './user/user.module';
+import { CommentsModule } from './comments/comments.module';
 
 @Module({
   imports: [
@@ -16,6 +15,7 @@ import { UserModule } from './user/user.module';
     ConfigModule.forRoot({ cache: true }),
     PostModule,
     UserModule,
+    CommentsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

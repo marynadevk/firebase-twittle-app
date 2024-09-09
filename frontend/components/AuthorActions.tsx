@@ -3,25 +3,25 @@ import { AiFillDelete, AiFillEdit } from 'react-icons/ai';
 import { FaSave } from "react-icons/fa";
 
 type Props = {
-  updatePost: () => void;
-  deletePost: () => void;
-  savePost: () => void;
+  updateItem: () => void;
+  deleteItem: () => void;
+  saveItem: () => void;
   isEdit: boolean;
 };
 
-const AuthorActions: FC<Props> = ({ updatePost, deletePost, isEdit, savePost }) => {
+const AuthorActions: FC<Props> = ({ updateItem, deleteItem, isEdit, saveItem }) => {
   return (
     <div>
       {isEdit ? (
-        <button className="btn btn-ghost btn-sm" onClick={savePost}>
+        <button className="btn btn-ghost btn-sm" onClick={saveItem}>
           <FaSave />
         </button>
       ) : (
-        <button className="btn btn-ghost btn-sm" onClick={updatePost}>
+        <button className="btn btn-ghost btn-sm" onClick={updateItem}>
           <AiFillEdit />
         </button>
       )}
-      <button className="btn btn-ghost btn-sm" onClick={deletePost}>
+      <button className="btn btn-ghost btn-sm" onClick={deleteItem}>
         <AiFillDelete />
       </button>
     </div>

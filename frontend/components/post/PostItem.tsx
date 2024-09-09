@@ -3,17 +3,20 @@ import React, { FC, useEffect, useState } from 'react';
 import PostActionsBar from './PostActionsBar';
 import { useLocalStorage } from 'usehooks-ts';
 import { IUser } from '@/interfaces/IUser';
-import AuthorActions from './AuthorActions';
+import AuthorActions from '../AuthorActions';
 import { deletePost, updatePost } from '@/api/posts';
 import { ICreatePost } from '@/interfaces/ICreatePost';
 import UploadImg from '../UploadImg';
 import { uploadNewImg } from '@/app/helpers/uploadNewImg';
 import { deleteImgFromStorage } from '@/app/helpers/deleteImgFromStorage';
-import AuthenticatedActions from './AuthenticatedActions';
+import AuthenticatedActions from '../AuthenticatedActions';
 import { AiFillDislike, AiFillLike } from 'react-icons/ai';
-import AuthorInformation from './AuthorInformation';
+import AuthorInformation from '../AuthorInformation';
 import { useAppDispatch } from '@/lib/hooks';
 import { removePost } from '@/lib/features/posts/postsSlice';
+import CommentsSection from '../comment/CommentsSection';
+import { deleteCommentsByPostId } from '@/api/comments';
+import TimeAgo from '../TimeAgo';
 
 type Props = {
   post: IPost;
@@ -22,6 +25,7 @@ type Props = {
 
 const PostItem: FC<Props> = ({ post, isAddComment }) => {
   const {
+    id,
     image,
     imageName,
     title,
@@ -31,6 +35,7 @@ const PostItem: FC<Props> = ({ post, isAddComment }) => {
     likes = [],
     dislikes = [],
     author,
+    comments = [],
   } = post;
   const [updatePostInfo, setUpdatePostInfo] = useState<ICreatePost>({
     title,
@@ -47,6 +52,7 @@ const PostItem: FC<Props> = ({ post, isAddComment }) => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [token] = useLocalStorage('token', null);
   const dispatch = useAppDispatch();
+
   useEffect(() => {
     setIsAuthor(() => {
       return user?.uid === authorId;
@@ -56,11 +62,12 @@ const PostItem: FC<Props> = ({ post, isAddComment }) => {
   const handleUpdate = () => {
     setIsEdit(true);
   };
+
   const handleSave = () => {
     if (!updatePostInfo) return;
     uploadNewImg(selectedFile).then((uploadedImage) => {
       if (!uploadedImage) {
-        uploadedImage = {url: image, fileName: imageName};
+        uploadedImage = { url: image, fileName: imageName };
       }
       const updatedPost = {
         ...updatePostInfo,
@@ -68,7 +75,7 @@ const PostItem: FC<Props> = ({ post, isAddComment }) => {
         imageName: uploadedImage.fileName,
         authorId: post.authorId,
       };
-      updatePost(post.id, updatedPost).then(() => {
+      updatePost(id, updatedPost).then(() => {
         setUpdatePostInfo((prevState) => ({
           ...prevState,
           imageName: uploadedImage.fileName,
@@ -90,8 +97,11 @@ const PostItem: FC<Props> = ({ post, isAddComment }) => {
   };
 
   const handleDelete = () => {
-    dispatch(removePost(post.id));
-    deletePost(post.id);
+    dispatch(removePost(id));
+    deletePost(id).then(() => {
+      if (!comments) return;
+      deleteCommentsByPostId(id);
+    });
     if (!imageName) return;
     deleteImgFromStorage(imageName);
   };
@@ -104,12 +114,12 @@ const PostItem: FC<Props> = ({ post, isAddComment }) => {
           {isAuthor && (
             <AuthorActions
               isEdit={isEdit}
-              savePost={handleSave}
-              deletePost={handleDelete}
-              updatePost={handleUpdate}
+              saveItem={handleSave}
+              deleteItem={handleDelete}
+              updateItem={handleUpdate}
             />
           )}
-          <div className="badge badge-ghost">Posted on {postedAt}</div>
+          <TimeAgo date={new Date(createdAt)} />
         </div>
       </div>
       <div className="divider divider-accent mb-0 mt-0 m-2" />
@@ -138,7 +148,7 @@ const PostItem: FC<Props> = ({ post, isAddComment }) => {
             <input type="radio" name="my-accordion-4" defaultChecked />
             <h2 className="collapse-title text-xl font-medium flex justify-between items-center">
               {updatePostInfo.title}
-              <span className='font-extralight text-sm'>show text</span>
+              <span className="font-extralight text-sm">show text</span>
             </h2>
             <div className="collapse-content">
               <p>{updatePostInfo.text}</p>
@@ -149,9 +159,10 @@ const PostItem: FC<Props> = ({ post, isAddComment }) => {
         <PostActionsBar>
           {token ? (
             <AuthenticatedActions
-              id={post.id}
+              id={id}
               likes={likes}
               dislikes={dislikes}
+              comments={comments}
             />
           ) : (
             <div className="flex items-center gap-2">
@@ -162,7 +173,7 @@ const PostItem: FC<Props> = ({ post, isAddComment }) => {
             </div>
           )}
         </PostActionsBar>
-        {isAddComment && <div className="comment-form"></div>}
+        {isAddComment && <CommentsSection postId={id} />}
       </div>
     </div>
   );
