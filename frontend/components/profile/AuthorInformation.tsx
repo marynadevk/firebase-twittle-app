@@ -1,6 +1,6 @@
-import { IAuthor } from '@/interfaces/IAuthor';
 import Link from 'next/link';
 import React, { FC } from 'react';
+import { IAuthor } from '@/interfaces/index';
 
 type Props = {
   author: IAuthor;
@@ -17,7 +17,9 @@ const AuthorInformation: FC<Props> = ({ author }) => {
           <img src={author.photoUrl} alt="author image" />
         </div>
       </div>
-      <div className="badge badge-lg badge-accent badge-outline">{author.name}</div>
+      <div className="badge badge-lg badge-accent badge-outline">
+        {author.name}
+      </div>
     </Link>
   );
 };

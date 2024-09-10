@@ -6,6 +6,7 @@ import { Auth } from 'firebase-admin/auth';
 import { PostRepository } from '../repositories/post.repository';
 import { PostDto } from '../dtos/post.dto';
 import { UserService } from 'src/user/services/user.service';
+import { CommentsService } from 'src/comments/services/comments.service';
 
 export interface FirestoreDoc extends FirebaseFirestore.QueryDocumentSnapshot {}
 @Injectable()
@@ -16,6 +17,7 @@ export class PostService {
   constructor(
     @Inject('FIREBASE_APP') private firebaseApp: app.App,
     @Inject() private postRepository: PostRepository,
+    @Inject() private commentsService: CommentsService,
     @Inject() private userService: UserService,
   ) {
     this.db = firebaseApp.firestore();
@@ -32,7 +34,6 @@ export class PostService {
       createdAt: Timestamp.fromDate(new Date()),
       likes: [],
       dislikes: [],
-      comments: [],
     };
     const id = await this.postRepository.createPost(newPost);
 
@@ -45,6 +46,7 @@ export class PostService {
     return {
       id,
       author,
+      comments: 0,
       ...newPost,
       createdAt: newPost.createdAt.toDate(),
     };
@@ -56,7 +58,8 @@ export class PostService {
       throw new Error('Post not found!!!');
     }
     const author = await this.userService.getUser(post.authorId);
-
+    const commentsAmount =
+      await this.commentsService.getCommentsAmountByPostId(id);
     return {
       title: post.title,
       text: post.text,
@@ -66,7 +69,7 @@ export class PostService {
       author,
       createdAt: post.createdAt.toDate(),
       id,
-      comments: post.comments || [],
+      comments: commentsAmount,
     };
   }
 
@@ -87,6 +90,8 @@ export class PostService {
     const postsData = posts.map(async (post) => {
       const data = post.data();
       const author = await this.userService.getUser(data.authorId);
+      const commentsAmount =
+        await this.commentsService.getCommentsAmountByPostId(post.id);
       return {
         id: post.id,
         authorId: data.authorId,
@@ -98,7 +103,7 @@ export class PostService {
         likes: data.likes,
         dislikes: data.dislikes,
         author,
-        comments: data.comments,
+        comments: commentsAmount,
       };
     });
 
@@ -161,17 +166,13 @@ export class PostService {
     return post;
   }
 
-  async addCommentId(postId: string, commentId: string) {
-    this.postRepository.addCommentId(postId, commentId);
-  }
-
-  async removeCommentId(postId: string, commentId: string) {
-    this.postRepository.removeCommentId(postId, commentId);
-  }
-
   async convertStringToDocSnapshot(lastDoc: string): Promise<FirestoreDoc> {
     const posts = this.db.collection('posts').doc(lastDoc);
     const lastDocSnap = await posts.get();
     return lastDocSnap as FirestoreDoc;
+  }
+
+  async deletePostsByAuthorId(userId: string) {
+    return this.postRepository.deletePostsByAuthorId(userId);
   }
 }

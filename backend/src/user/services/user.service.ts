@@ -19,4 +19,8 @@ export class UserService {
       photoUrl: user.photoURL,
     };
   }
+
+  async deleteUser(userId: string) {
+    return await this.auth.deleteUser(userId);
+  }
 }

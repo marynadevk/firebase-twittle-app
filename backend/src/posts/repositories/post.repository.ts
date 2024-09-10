@@ -68,12 +68,21 @@ export class PostRepository {
   }
 
   async getPostById(id: string) {
-    const postCollection = this.postCollection;
-    return (await postCollection.doc(id).get()).data();
+    return (await this.postCollection.doc(id).get()).data();
   }
 
   async deletePost(id: string) {
-    const postCollection = this.postCollection;
-    return await postCollection.doc(id).delete();
+    return await this.postCollection.doc(id).delete();
+  }
+
+  async deletePostsByAuthorId(userId: string) {
+    const posts = await this.postCollection
+      .where('authorId', '==', userId)
+      .get();
+    if (posts) {
+      posts.forEach((post) => {
+        post.ref.delete();
+      });
+    }
   }
 }

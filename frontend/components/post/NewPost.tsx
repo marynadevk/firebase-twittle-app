@@ -1,11 +1,11 @@
 'use client';
 import React, { ChangeEvent, FC, useState } from 'react';
-import UploadImg from '../UploadImg';
-import { ICreatePost } from '@/interfaces/ICreatePost';
+import { ICreatePost } from '@/interfaces/index';
 import { createPost } from '@/api/posts';
-import { uploadNewImg } from '@/app/helpers/uploadNewImg';
+import { uploadNewImg } from '@/lib/firebase/uploadNewImg';
 import { useAppDispatch } from '@/lib/hooks';
 import { addPost } from '@/lib/features/posts/postsSlice';
+import { UploadImg } from '../index';
 
 type Props = {
   setIsOpen: (value: boolean) => void;

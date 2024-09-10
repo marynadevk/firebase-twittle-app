@@ -1,5 +1,6 @@
+import { storage } from '@/lib/firebase/firebase.config';
 import { ref, deleteObject } from 'firebase/storage';
-import { storage } from '@/lib/firebase';
+
 import { toast } from 'react-toastify';
 
 export const deleteImgFromStorage = async (fileName: string) => {

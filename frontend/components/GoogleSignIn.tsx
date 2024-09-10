@@ -1,16 +1,17 @@
-import { IUser } from '@/interfaces/IUser';
-import { auth } from '@/lib/firebase';
-import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
-import { useRouter } from 'next/navigation';
-
 import React from 'react';
+import { useRouter } from 'next/navigation';
+import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 import { useLocalStorage } from 'usehooks-ts';
+import { toast } from 'react-toastify';
+import { auth } from '@/lib/firebase/firebase.config';
+import { IUser } from '@/interfaces/index';
+import { ERROR_MESSAGE } from '@/app/constants/constants';
 
 const GoogleSignIn = () => {
   const router = useRouter();
-  const [token, setToken] = useLocalStorage<null | string>('token', null);
-  const [user, setUser] = useLocalStorage<null | IUser>('user', null);
-  
+  const [_token, setToken] = useLocalStorage<null | string>('token', null);
+  const [_user, setUser] = useLocalStorage<null | IUser>('user', null);
+
   const googleSignUp = async () => {
     try {
       const provider = new GoogleAuthProvider();
@@ -26,12 +27,16 @@ const GoogleSignIn = () => {
       });
       router.push('/');
     } catch (error) {
-      console.error('Error during Google sign-up:', error);
+      toast.error(ERROR_MESSAGE.googleSignIn);
       throw error;
     }
   };
   return (
-    <button type='button' onClick={googleSignUp} className="btn btn-outline btn-accent">
+    <button
+      type="button"
+      onClick={googleSignUp}
+      className="btn btn-outline btn-accent"
+    >
       Continue with Google
     </button>
   );

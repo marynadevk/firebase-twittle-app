@@ -7,7 +7,7 @@ export class PostDto {
   imageName?: string | '';
   likes: string[] | [];
   dislikes: string[] | [];
-  comments?: string[] | [];
+  comments: number;
   authorId: string;
   createdAt: Date;
   id?: string;

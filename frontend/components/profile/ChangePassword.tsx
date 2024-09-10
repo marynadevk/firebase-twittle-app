@@ -1,12 +1,12 @@
-import { auth } from '@/lib/firebase';
+import React, { FormEvent, useState } from 'react';
 import {
   EmailAuthProvider,
   reauthenticateWithCredential,
   updatePassword,
 } from 'firebase/auth';
-import React, { FormEvent, useState } from 'react';
 import { MdDone } from 'react-icons/md';
 import { toast } from 'react-toastify';
+import { auth } from '@/lib/firebase/firebase.config';
 
 enum Fields {
   OLDPASSWORD = 'oldPassword',
@@ -40,7 +40,7 @@ const ChangePassword = () => {
     }
     if (!currentUser) return;
 
-    const authenticated = await reauthenticateWithCredential(
+    await reauthenticateWithCredential(
       currentUser,
       EmailAuthProvider.credential(
         currentUser.email as string,

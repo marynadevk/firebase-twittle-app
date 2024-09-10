@@ -41,4 +41,21 @@ export class CommentsRepository {
   async deleteCommentByPostId(postId: string) {
     return this.commentsCollection.where('postId', '==', postId).delete();
   }
+
+  async deleteCommentsByAuthorId(userId: string) {
+    const comments = await this.commentsCollection
+      .where('authorId', '==', userId)
+      .get();
+    if (comments) {
+      comments.forEach((comment) => {
+        comment.ref.delete();
+      });
+    }
+  }
+
+  async getCommentsAmountByPostId(postId: string) {
+    return (
+      await this.commentsCollection.where('postId', '==', postId).count().get()
+    ).data().count;
+  }
 }

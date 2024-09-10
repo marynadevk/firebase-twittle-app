@@ -1,5 +1,5 @@
 import { envConfig } from '@/config';
-import { auth } from '@/lib/firebase';
+import { auth } from '@/lib/firebase/firebase.config';
 import axios from 'axios';
 
 const api = axios.create({

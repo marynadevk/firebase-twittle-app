@@ -1,19 +1,19 @@
 'use client';
+
 import React, { FC, useEffect, useState } from 'react';
-import PostItem from './PostItem';
-import { getPosts, getUsersPosts } from '@/api/posts';
-import { IPost } from '@/interfaces/IPost';
-import { getMorePosts, loadPosts } from '@/lib/features/posts/postsSlice';
-import { useAppDispatch, useAppSelector } from '@/lib/hooks';
 import { toast } from 'react-toastify';
-import LoaderDots from '../LoaderDots';
+import { getPosts } from '@/api/posts';
+import { useAppDispatch, useAppSelector } from '@/lib/hooks';
+import { getMorePosts, loadPosts } from '@/lib/features/posts/postsSlice';
 import { startLoading, stopLoading } from '@/lib/features/loader/loaderSlice';
+import { PostItem, LoaderDots } from '../index';
+import { IPost } from '@/interfaces/index';
+import { ERROR_MESSAGE, PAGE_SIZE } from '@/app/constants/constants';
 
 type Props = {
   authorId?: string;
 };
 
-const PAGE_SIZE = 6;
 
 const PostsList: FC<Props> = ({ authorId }) => {
   const [lastPost, setLastPost] = useState<string | null>(null);
@@ -36,7 +36,7 @@ const PostsList: FC<Props> = ({ authorId }) => {
       setLastPost(lastDoc);
       dispatch(getMorePosts(posts));
     } catch (error) {
-      toast.error('Error loading posts');
+      toast.error(ERROR_MESSAGE.loadPosts);
     }
   };
 

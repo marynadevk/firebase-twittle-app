@@ -1,12 +1,11 @@
 'use strict';
+
 import React, { FC, useEffect } from 'react';
-import { useAppDispatch, useAppSelector } from '@/lib/hooks';
-import CommentItem from './CommentItem';
-import CommentForm from './CommentForm';
 import { getComments } from '@/api/comments';
 import { loadComments } from '@/lib/features/comments/commentsSlice';
+import { useAppDispatch, useAppSelector } from '@/lib/hooks';
 import { startLoading, stopLoading } from '@/lib/features/loader/loaderSlice';
-import LoaderDots from '../LoaderDots';
+import {LoaderDots, CommentForm, CommentItem} from '../index';
 
 type Props = {
   postId: string;

@@ -1,4 +1,6 @@
 import { FC, useState } from 'react';
+import Link from 'next/link';
+import { toast } from 'react-toastify';
 import {
   AiFillDislike,
   AiFillLike,
@@ -7,21 +9,29 @@ import {
 } from 'react-icons/ai';
 import { BiComment } from 'react-icons/bi';
 import { updatePostLike, updatePostDislike } from '@/api/posts';
-import { auth } from '@/lib/firebase';
-import Link from 'next/link';
-import { toast } from 'react-toastify';
+import { auth } from '@/lib/firebase/firebase.config';
+
 type Props = {
   likes: string[];
   dislikes: string[];
-  comments: string[];
+  comments?: number;
   id: string;
 };
 
-const AuthenticatedActions: FC<Props> = ({ likes = [], dislikes = [], id, comments = [] }) => {
+const AuthenticatedActions: FC<Props> = ({
+  likes = [],
+  dislikes = [],
+  id,
+  comments = 0,
+}) => {
   const [likesCount, setLikesCount] = useState(likes.length);
   const [dislikesCount, setDislikesCount] = useState(dislikes.length);
-  const [hasLiked, setHasLiked] = useState(likes.includes(auth.currentUser?.uid || ''));
-  const [hasDisliked, setHasDisliked] = useState(dislikes.includes(auth.currentUser?.uid || ''));
+  const [hasLiked, setHasLiked] = useState(
+    likes.includes(auth.currentUser?.uid || '')
+  );
+  const [hasDisliked, setHasDisliked] = useState(
+    dislikes.includes(auth.currentUser?.uid || '')
+  );
 
   const handleLike = async () => {
     try {
@@ -62,7 +72,7 @@ const AuthenticatedActions: FC<Props> = ({ likes = [], dislikes = [], id, commen
       </button>
       <Link href={`/post/${id}`} className="btn btn-ghost btn-sm">
         <BiComment />
-        <span>{comments.length}</span>
+        <span>{comments}</span>
       </Link>
     </div>
   );

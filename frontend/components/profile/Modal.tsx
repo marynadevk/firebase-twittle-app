@@ -1,10 +1,9 @@
 import React, { FC, FormEvent, useEffect, useRef, useState } from 'react';
 import { AiFillEdit } from 'react-icons/ai';
 import { MdDone } from 'react-icons/md';
-import { auth } from '@/lib/firebase';
+import { auth } from '@/lib/firebase/firebase.config';
 import { updateEmail, updateProfile, User } from 'firebase/auth';
-import PersonalImage from './PersonalImage';
-import ChangePassword from './ChangePassword';
+import { PersonalImage, ChangePassword } from '../index';
 
 type Props = {
   isOpen: boolean;

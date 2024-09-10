@@ -1,5 +1,5 @@
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { storage } from '@/lib/firebase';
+import { storage } from '@/lib/firebase/firebase.config';
 import { toast } from 'react-toastify';
 
 export interface IUploadNewImg {

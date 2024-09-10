@@ -1,20 +1,19 @@
 'use client';
 
-import { auth } from '@/lib/firebase';
-import { IRegistrationForm } from '@/interfaces/IRegistrationForm';
-import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
+import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import React, { useState } from 'react';
 import { useLocalStorage } from 'usehooks-ts';
-import { IUser } from '@/interfaces/IUser';
 import { useForm, FormProvider } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as Yup from 'yup';
-import { errMsg } from '../helpers/errorMessages';
 import { toast, ToastContainer } from 'react-toastify';
 import { injectStyle } from 'react-toastify/dist/inject-style';
-import FormFooter from '@/components/FormFooter';
-import NewAvatar from '@/components/NewAvatar';
+import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
+import { auth } from '@/lib/firebase/firebase.config';
+import { ERROR_MESSAGE } from '../constants/constants';
+import { FormFooter, NewAvatar } from '@/components/index';
+import { IRegistrationForm, IUser } from '@/interfaces/index';
+
 
 enum Fields {
   fullName = 'fullName',
@@ -25,24 +24,23 @@ enum Fields {
 
 const validationSchema = Yup.object()
   .shape({
-    fullName: Yup.string().required(errMsg.required),
-    email: Yup.string().email(errMsg.email).required(errMsg.required),
+    fullName: Yup.string().required(ERROR_MESSAGE.required),
+    email: Yup.string().email(ERROR_MESSAGE.email).required(ERROR_MESSAGE.required),
     password: Yup.string()
-      .min(6, errMsg.minLength)
-      .max(20, errMsg.maxLength)
-      .required(errMsg.required),
-    confirmPassword: Yup.string().oneOf(
-      [Yup.ref('password')],
-      errMsg.passwordConfirm
-    ).required(errMsg.required),
-    avatarUrl: Yup.string().url(errMsg.invalidUrl),
+      .min(6, ERROR_MESSAGE.minLength)
+      .max(20, ERROR_MESSAGE.maxLength)
+      .required(ERROR_MESSAGE.required),
+    confirmPassword: Yup.string()
+      .oneOf([Yup.ref('password')], ERROR_MESSAGE.passwordConfirm)
+      .required(ERROR_MESSAGE.required),
+    avatarUrl: Yup.string().url(ERROR_MESSAGE.invalidUrl).required(),
   })
   .required();
 
 const RegisterPage = () => {
   const [loading, setLoading] = useState(false);
-  const [user, setUser] = useLocalStorage<null | IUser>('user', null);
-  const [token, setToken] = useLocalStorage<null | string>('token', null);
+  const [_user, setUser] = useLocalStorage<null | IUser>('user', null);
+  const [_token, setToken] = useLocalStorage<null | string>('token', null);
   const router = useRouter();
 
   const methods = useForm<IRegistrationForm>({
@@ -83,13 +81,15 @@ const RegisterPage = () => {
       });
       router.push('/');
     } catch (error) {
-      toast.error('Error signing up, try again');
+      toast.error(ERROR_MESSAGE.signUp);
     } finally {
       setLoading(false);
     }
   };
 
-  injectStyle();
+  useEffect(() => {
+    injectStyle();
+  }, []);
 
   return (
     <>

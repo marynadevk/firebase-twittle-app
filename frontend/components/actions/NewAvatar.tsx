@@ -1,6 +1,6 @@
 'use client';
 
-import { IRegistrationForm } from '@/interfaces/IRegistrationForm';
+import { IRegistrationForm } from '@/interfaces/index';
 import { AvatarGenerator } from 'random-avatar-generator';
 import React, { FC, useEffect, useState } from 'react';
 import { UseFormSetValue } from 'react-hook-form';

@@ -11,7 +11,7 @@ import { Auth } from 'firebase-admin/auth';
 @Injectable()
 export class AuthGuard implements CanActivate {
   private auth: Auth;
-  
+
   constructor(@Inject('FIREBASE_APP') private firebaseApp: app.App) {
     this.auth = firebaseApp.auth();
   }

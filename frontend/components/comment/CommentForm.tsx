@@ -1,13 +1,13 @@
-import { createComment } from '@/api/posts';
-import { errMsg } from '@/app/helpers/errorMessages';
-import { addComment } from '@/lib/features/comments/commentsSlice';
-import { startLoading, stopLoading } from '@/lib/features/loader/loaderSlice';
-import { useAppDispatch, useAppSelector } from '@/lib/hooks';
-import React, { ChangeEvent, FC, useState } from 'react';
+import React, { FC } from 'react';
+import { toast } from 'react-toastify';
+import { yupResolver } from '@hookform/resolvers/yup';
 import * as Yup from 'yup';
 import { useForm, FormProvider } from 'react-hook-form';
-import { yupResolver } from '@hookform/resolvers/yup';
-import { toast } from 'react-toastify';
+import { createComment } from '@/api/posts';
+import { ERROR_MESSAGE } from '@/app/constants/constants';
+import { addComment } from '@/lib/features/comments/commentsSlice';
+import { startLoading, stopLoading } from '@/lib/features/loader/loaderSlice';
+import { useAppDispatch } from '@/lib/hooks';
 
 type Props = {
   postId: string;
@@ -15,12 +15,11 @@ type Props = {
 
 const validationSchema = Yup.object()
   .shape({
-    text: Yup.string().max(1000).required(errMsg.required),
+    text: Yup.string().max(1000).required(ERROR_MESSAGE.required),
   })
   .required();
 
 const CommentForm: FC<Props> = ({ postId }) => {
-  const { isLoading } = useAppSelector((state) => state.loader);
   const dispatch = useAppDispatch();
   const methods = useForm<CommentFormData>({
     resolver: yupResolver(validationSchema),
@@ -42,9 +41,8 @@ const CommentForm: FC<Props> = ({ postId }) => {
     try {
       const newComment = await createComment(postId, data.text);
       dispatch(addComment(newComment.data));
-      toast.success('Comment added successfully!');
     } catch (error) {
-      toast.error('Error creating comment');
+      toast.error(ERROR_MESSAGE.createComment);
     } finally {
       dispatch(stopLoading());
       methods.reset();
@@ -66,11 +64,7 @@ const CommentForm: FC<Props> = ({ postId }) => {
           {errors.text && (
             <span className="text-red-500">{errors.text.message}</span>
           )}
-          <button
-            type="submit"
-            className={`btn btn-accent w-40 ${isLoading ? 'loading' : ''}`}
-            disabled={isLoading}
-          >
+          <button type="submit" className="btn btn-accent w-40">
             Add comment
           </button>
         </form>

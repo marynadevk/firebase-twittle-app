@@ -1,4 +1,4 @@
-import { IComment } from '@/interfaces/IComment';
+import { IComment } from '@/interfaces/index';
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 interface ICommentsState {

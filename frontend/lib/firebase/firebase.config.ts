@@ -1,7 +1,7 @@
 import { initializeApp } from 'firebase/app';
 import { getFirestore } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
-import { envFirebase } from '../config';
+import { envFirebase } from '../../config';
 import { getStorage } from 'firebase/storage';
 
 const firebaseConfig = {

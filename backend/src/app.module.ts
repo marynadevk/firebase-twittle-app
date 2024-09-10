@@ -7,6 +7,7 @@ import { FirebaseModule } from './firebase/firebase.module';
 import { PostModule } from './posts/post.module';
 import { UserModule } from './user/user.module';
 import { CommentsModule } from './comments/comments.module';
+import { ProfileModule } from './profile/profile.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { CommentsModule } from './comments/comments.module';
     PostModule,
     UserModule,
     CommentsModule,
+    ProfileModule,
   ],
   controllers: [AppController],
   providers: [AppService],

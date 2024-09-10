@@ -1,7 +1,9 @@
 'use client';
 
+import { ERROR_MESSAGE } from '@/app/constants/constants';
 import { ChangeEvent, FC } from 'react';
 import { AiOutlineDelete } from 'react-icons/ai';
+import { toast } from 'react-toastify';
 
 type Props = {
   file: File | null;
@@ -16,7 +18,7 @@ const UploadImg: FC<Props> = ({ file, setFile, isEdit }) => {
       if (selectedFile.type.startsWith('image/')) {
         setFile(selectedFile);
       } else {
-        alert('Please select a valid image file.');
+        toast.warning(ERROR_MESSAGE.validFile);
       }
     }
   };

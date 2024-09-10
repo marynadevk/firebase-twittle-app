@@ -1,22 +1,22 @@
-import { IPost } from '@/interfaces/IPost';
 import React, { FC, useEffect, useState } from 'react';
-import PostActionsBar from './PostActionsBar';
 import { useLocalStorage } from 'usehooks-ts';
-import { IUser } from '@/interfaces/IUser';
-import AuthorActions from '../AuthorActions';
-import { deletePost, updatePost } from '@/api/posts';
-import { ICreatePost } from '@/interfaces/ICreatePost';
-import UploadImg from '../UploadImg';
-import { uploadNewImg } from '@/app/helpers/uploadNewImg';
-import { deleteImgFromStorage } from '@/app/helpers/deleteImgFromStorage';
-import AuthenticatedActions from '../AuthenticatedActions';
 import { AiFillDislike, AiFillLike } from 'react-icons/ai';
-import AuthorInformation from '../AuthorInformation';
+import { deletePost, updatePost } from '@/api/posts';
+import { deleteCommentsByPostId } from '@/api/comments';
+import { uploadNewImg } from '@/lib/firebase/uploadNewImg';
+import { deleteImgFromStorage } from '@/lib/firebase/deleteImgFromStorage';
 import { useAppDispatch } from '@/lib/hooks';
 import { removePost } from '@/lib/features/posts/postsSlice';
-import CommentsSection from '../comment/CommentsSection';
-import { deleteCommentsByPostId } from '@/api/comments';
-import TimeAgo from '../TimeAgo';
+import { IPost, IUser, ICreatePost } from '@/interfaces/index';
+import {
+  PostActionsBar,
+  AuthorActions,
+  UploadImg,
+  TimeAgo,
+  AuthenticatedActions,
+  CommentsSection,
+  AuthorInformation,
+} from './../index';
 
 type Props = {
   post: IPost;
@@ -35,7 +35,7 @@ const PostItem: FC<Props> = ({ post, isAddComment }) => {
     likes = [],
     dislikes = [],
     author,
-    comments = [],
+    comments,
   } = post;
   const [updatePostInfo, setUpdatePostInfo] = useState<ICreatePost>({
     title,
@@ -44,8 +44,6 @@ const PostItem: FC<Props> = ({ post, isAddComment }) => {
     likes,
     dislikes,
   });
-
-  const postedAt = new Date(createdAt).toISOString().split('T')[0];
   const [user] = useLocalStorage<null | IUser>('user', null);
   const [isEdit, setIsEdit] = useState(false);
   const [isAuthor, setIsAuthor] = useState(false);

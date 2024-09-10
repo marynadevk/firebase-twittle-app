@@ -1,16 +1,12 @@
 import React, { ChangeEvent, FC, useEffect, useState } from 'react';
-import { useAppDispatch } from '@/lib/hooks';
-import { useLocalStorage } from 'usehooks-ts';
-import { IUser } from '@/interfaces/IUser';
-import AuthorInformation from '../AuthorInformation';
-import AuthorActions from '../AuthorActions';
-import { IComment } from '@/interfaces/IComment';
-import TimeAgo from '../TimeAgo';
-import { deleteComment, updateComment } from '@/api/comments';
-import { changeComment, removeComment } from '@/lib/features/comments/commentsSlice';
 import { toast } from 'react-toastify';
-import { set } from 'date-fns';
-import { setConfig } from 'next/config';
+import { useLocalStorage } from 'usehooks-ts';
+import { deleteComment, updateComment } from '@/api/comments';
+import { useAppDispatch } from '@/lib/hooks';
+import { changeComment, removeComment } from '@/lib/features/comments/commentsSlice';
+import { IUser, IComment } from '@/interfaces/index';
+import {AuthorInformation, AuthorActions, TimeAgo} from '../index';
+import { ERROR_MESSAGE } from '@/app/constants/constants';
 
 type Props = {
   comment: IComment;
@@ -44,7 +40,7 @@ const CommentItem: FC<Props> = ({ comment }) => {
         dispatch(changeComment(updatedComment.data));
       });
     } catch (error) {
-      toast.error('Error updating is failed');
+      toast.error(ERROR_MESSAGE.update);
     } finally {
       setIsEdit(false);
     }

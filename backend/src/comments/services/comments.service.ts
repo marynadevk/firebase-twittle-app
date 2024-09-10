@@ -3,7 +3,6 @@ import { Auth } from 'firebase-admin/auth';
 import { CommentDto } from '../dtos/comment.dto';
 import { app } from 'firebase-admin';
 import { CommentsRepository } from '../repositories/comments.repository';
-import { PostService } from '../../posts/services/post.service';
 import { Timestamp } from 'firebase-admin/firestore';
 import { UserInfoDto } from 'src/user/dtos/user-info.dto';
 import { UserService } from 'src/user/services/user.service';
@@ -15,7 +14,6 @@ export class CommentsService {
   constructor(
     @Inject('FIREBASE_APP') private firebaseApp: app.App,
     @Inject() private commentsRepository: CommentsRepository,
-    @Inject() private postService: PostService,
     @Inject() private userService: UserService,
   ) {
     this.auth = firebaseApp.auth();
@@ -50,7 +48,6 @@ export class CommentsService {
       createdAt: Timestamp.fromDate(new Date()),
     };
     const id = await this.commentsRepository.createComment(newComment);
-    this.postService.addCommentId(postId, id);
     return {
       ...newComment,
       id,
@@ -89,10 +86,17 @@ export class CommentsService {
       throw new Error('You are not authorized to delete this comment');
     }
     await this.commentsRepository.deleteComment(commentId);
-    return this.postService.removeCommentId(postId, commentId);
   }
 
   async deleteCommentsByPostId(postId: string) {
     await this.commentsRepository.deleteCommentByPostId(postId);
+  }
+
+  async deleteCommentsByAuthorId(userId: string) {
+    await this.commentsRepository.deleteCommentsByAuthorId(userId);
+  }
+
+  async getCommentsAmountByPostId(postId: string) {
+    return this.commentsRepository.getCommentsAmountByPostId(postId);
   }
 }

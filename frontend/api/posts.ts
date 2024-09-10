@@ -1,4 +1,4 @@
-import { ICreatePost } from '@/interfaces/ICreatePost';
+import { ICreatePost } from '@/interfaces/index';
 import api from './client';
 
 export const createPost = (post: ICreatePost) => {
