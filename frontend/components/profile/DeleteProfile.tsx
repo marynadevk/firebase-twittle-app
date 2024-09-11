@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { toast } from 'react-toastify';
 import { reAuthWithCredential } from '@/lib/firebase/reAuthWithCredential';
-import { ERROR_MESSAGE, AUTH_ERROR } from '@/app/constants/constants';
+import { ERROR_MESSAGE, AUTH_ERROR } from '@/constants/constants';
 import { useLocalStorage } from 'usehooks-ts';
 import { IUser } from '@/interfaces/index';
 import { deleteUserProfile } from '@/api/users';

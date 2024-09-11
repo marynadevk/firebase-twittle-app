@@ -13,7 +13,7 @@ import { auth } from '@/lib/firebase/firebase.config';
 import { ERROR_MESSAGE } from '../constants/constants';
 import { FormFooter, NewAvatar } from '@/components/index';
 import { IRegistrationForm, IUser } from '@/interfaces/index';
-
+import Head from 'next/head';
 
 enum Fields {
   fullName = 'fullName',
@@ -25,7 +25,9 @@ enum Fields {
 const validationSchema = Yup.object()
   .shape({
     fullName: Yup.string().required(ERROR_MESSAGE.required),
-    email: Yup.string().email(ERROR_MESSAGE.email).required(ERROR_MESSAGE.required),
+    email: Yup.string()
+      .email(ERROR_MESSAGE.email)
+      .required(ERROR_MESSAGE.required),
     password: Yup.string()
       .min(6, ERROR_MESSAGE.minLength)
       .max(20, ERROR_MESSAGE.maxLength)
@@ -93,6 +95,11 @@ const RegisterPage = () => {
 
   return (
     <>
+      <Head>
+        <title>Twittle</title>
+        <meta name="description" content="This is a Twitter clone" />
+        <link rel="icon" href="/logo.png" />
+      </Head>
       <ToastContainer autoClose={500} />
       <div className="flex justify-center items-center h-screen font-primary p-10 m-2">
         <FormProvider {...methods}>

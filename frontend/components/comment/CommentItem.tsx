@@ -6,7 +6,7 @@ import { useAppDispatch } from '@/lib/hooks';
 import { changeComment, removeComment } from '@/lib/features/comments/commentsSlice';
 import { IUser, IComment } from '@/interfaces/index';
 import {AuthorInformation, AuthorActions, TimeAgo} from '../index';
-import { ERROR_MESSAGE } from '@/app/constants/constants';
+import { ERROR_MESSAGE } from '@/constants/constants';
 
 type Props = {
   comment: IComment;

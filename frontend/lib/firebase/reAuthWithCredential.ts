@@ -1,4 +1,4 @@
-import { ERROR_MESSAGE } from '@/app/constants/constants';
+import { ERROR_MESSAGE } from '@/constants/constants';
 import { auth } from '@/lib/firebase/firebase.config';
 import { EmailAuthProvider, reauthenticateWithCredential } from 'firebase/auth';
 

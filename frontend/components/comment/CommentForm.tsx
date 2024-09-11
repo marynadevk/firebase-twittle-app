@@ -4,7 +4,7 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import * as Yup from 'yup';
 import { useForm, FormProvider } from 'react-hook-form';
 import { createComment } from '@/api/posts';
-import { ERROR_MESSAGE } from '@/app/constants/constants';
+import { ERROR_MESSAGE } from '@/constants/constants';
 import { addComment } from '@/lib/features/comments/commentsSlice';
 import { startLoading, stopLoading } from '@/lib/features/loader/loaderSlice';
 import { useAppDispatch } from '@/lib/hooks';

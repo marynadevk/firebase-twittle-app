@@ -10,13 +10,16 @@ import {
   Profile,
   GoBack,
 } from '@/components/index';
+import { useRouter } from 'next/router';
 
+const UserProfilePage = () => {
+  const router = useRouter();
+  const id = router.query.id?.toString();
 
-const UserProfilePage = ({ params }: { params: { id: string } }) => {
-  const { id } = params;
   useEffect(() => {
     injectStyle();
   }, []);
+
   return (
     <>
       <Header />

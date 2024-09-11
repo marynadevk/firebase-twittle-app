@@ -1,6 +1,6 @@
 'use client';
 
-import { ERROR_MESSAGE } from '@/app/constants/constants';
+import { ERROR_MESSAGE } from '@/constants/constants';
 import { ChangeEvent, FC } from 'react';
 import { AiOutlineDelete } from 'react-icons/ai';
 import { toast } from 'react-toastify';

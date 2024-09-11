@@ -8,7 +8,7 @@ import { getMorePosts, loadPosts } from '@/lib/features/posts/postsSlice';
 import { startLoading, stopLoading } from '@/lib/features/loader/loaderSlice';
 import { PostItem, LoaderDots } from '../index';
 import { IPost } from '@/interfaces/index';
-import { ERROR_MESSAGE, PAGE_SIZE } from '@/app/constants/constants';
+import { ERROR_MESSAGE, PAGE_SIZE } from '@/constants/constants';
 
 type Props = {
   authorId?: string;

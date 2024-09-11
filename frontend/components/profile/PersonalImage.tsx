@@ -2,7 +2,6 @@ import React, { FC, useState } from 'react';
 import { updateProfile, User } from 'firebase/auth';
 import { auth } from '@/lib/firebase/firebase.config';
 import { uploadNewImg } from '@/lib/firebase/uploadNewImg';
-import './PersonalImage.css';
 
 type Props = {
   avatarUrl: string;

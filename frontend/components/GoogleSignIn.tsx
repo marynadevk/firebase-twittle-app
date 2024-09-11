@@ -5,7 +5,7 @@ import { useLocalStorage } from 'usehooks-ts';
 import { toast } from 'react-toastify';
 import { auth } from '@/lib/firebase/firebase.config';
 import { IUser } from '@/interfaces/index';
-import { ERROR_MESSAGE } from '@/app/constants/constants';
+import { ERROR_MESSAGE } from '@/constants/constants';
 
 const GoogleSignIn = () => {
   const router = useRouter();
