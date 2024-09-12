@@ -27,3 +27,7 @@ export { default as GoogleSignIn } from './GoogleSignIn';
 export { default as FormFooter } from './FormFooter';
 export { default as LoaderDots } from './LoaderDots';
 export { default as TimeAgo } from './TimeAgo';
+export { default as AuthButtons } from './AuthButtons';
+
+export { default as Hit } from './search/Hit';
+export { default as SearchOnPage } from './search/SearchOnPage';

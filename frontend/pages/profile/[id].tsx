@@ -25,11 +25,8 @@ const UserProfilePage = () => {
       <Header />
       <div className="flex">
         <ToastContainer autoClose={500} />
-        <LeftSide>
+        <LeftSide pageName={'Profile'}>
           <div className="flex flex-col justify-center gap-5 w-full">
-            <div className="flex justify-center text-white text-2xl">
-              <span>Profile page</span>
-            </div>
             <GoBack />
             <Profile userId={id} />
           </div>

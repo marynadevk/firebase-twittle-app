@@ -1,26 +1,28 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useLocalStorage } from 'usehooks-ts';
 import { IUser } from '@/interfaces/index';
 import { auth } from '@/lib/firebase/firebase.config';
+import { useAppDispatch, useAppSelector } from '@/lib/hooks';
+import { setIsAuthenticated } from '@/lib/features/auth/authSlice';
+import SearchOnPage from './search/SearchOnPage';
+
 
 const Header = () => {
-  const [token, _setToken, removeToken] = useLocalStorage('token', null);
+  const [_token, _setToken, removeToken] = useLocalStorage('token', null);
   const [_user, _setUser, removeUser] = useLocalStorage<null | IUser>(
     'user',
     null
   );
   const router = useRouter();
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  useEffect(() => {
-    setIsAuthenticated(!!token);
-  }, [token]);
+  const { isAuthenticated } = useAppSelector((state) => state.auth);
+  const dispatch = useAppDispatch();
 
   const logout = () => {
     auth.signOut();
+    dispatch(setIsAuthenticated(false));
     removeToken();
     removeUser();
     router.push('/');
@@ -34,9 +36,12 @@ const Header = () => {
           <h1 className="text-2xl font-bold text-white">Twittle</h1>
         </Link>
         {isAuthenticated && (
-          <button className="btn btn-outline btn-accent" onClick={logout}>
-            Logout
-          </button>
+          <div className="flex items-center justify-center gap-5">
+            <SearchOnPage />
+            <button className="btn btn-outline btn-accent" onClick={logout}>
+              Logout
+            </button>
+          </div>
         )}
       </header>
     </>

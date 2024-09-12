@@ -5,7 +5,7 @@ import { getComments } from '@/api/comments';
 import { loadComments } from '@/lib/features/comments/commentsSlice';
 import { useAppDispatch, useAppSelector } from '@/lib/hooks';
 import { startLoading, stopLoading } from '@/lib/features/loader/loaderSlice';
-import {LoaderDots, CommentForm, CommentItem} from '../index';
+import { LoaderDots, CommentForm, CommentItem } from '../index';
 
 type Props = {
   postId: string;
@@ -27,8 +27,8 @@ const CommentsSection: FC<Props> = ({ postId }) => {
   }, []);
 
   return (
-    <div className="p-10 flex flex-col">
-      Comments
+    <div className="p-10 flex flex-col gap-2">
+      <h1 className='font-bold'>Comments:</h1>
       {isLoading && <LoaderDots />}
       {comments.length > 0 ? (
         comments.map((comment) => (
@@ -37,7 +37,7 @@ const CommentsSection: FC<Props> = ({ postId }) => {
           </div>
         ))
       ) : (
-        <p>No comments yet</p>
+        <p className="p-2 font-extralight">No comments yet</p>
       )}
       <CommentForm postId={postId} />
     </div>

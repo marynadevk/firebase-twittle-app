@@ -13,3 +13,9 @@ export const envConfig = {
   port: process.env.NEXT_PUBLIC_PORT,
   apiBaseUrl: process.env.NEXT_PUBLIC_API_BASE_URL,
 };
+
+export const envSearch = {
+  appId: process.env.NEXT_PUBLIC_ALGOLIA_APP_ID,
+  searchKey: process.env.NEXT_PUBLIC_ALGOLIA_SEARCH_KEY,
+  indexName: process.env.NEXT_PUBLIC_ALGOLIA_INDEX_NAME,
+};

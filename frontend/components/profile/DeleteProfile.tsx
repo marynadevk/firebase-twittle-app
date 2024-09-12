@@ -71,7 +71,7 @@ const DeleteProfile = () => {
               placeholder="Enter your password"
               value={password}
               onChange={handlePasswordChange}
-              className="input-bordered input-error w-full h-10 text-gray-900"
+              className="input-bordered input-error w-full h-10 text-gray-900 text-sm"
             />
             <button
               type="button"

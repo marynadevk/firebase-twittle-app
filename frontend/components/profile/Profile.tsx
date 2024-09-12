@@ -12,7 +12,7 @@ type Props = {
 const Profile: FC<Props> = ({ userId = auth.currentUser?.uid }) => {
   const [currentUser, setCurrentUser] = useState<User | null>(auth.currentUser);
   auth.onAuthStateChanged((user) => {
-    if (user) {
+    if (user && user.uid !== currentUser?.uid) {
       setCurrentUser(user);
     }
   });

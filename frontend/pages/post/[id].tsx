@@ -27,17 +27,13 @@ const PostPage = () => {
   useEffect(() => {
     injectStyle();
   }, []);
-
   return (
     <>
       <Header />
       <div className="flex">
         <ToastContainer autoClose={500} />
-        <LeftSide>
+        <LeftSide pageName="Post">
           <div className="flex flex-col justify-center gap-5 w-full">
-            <div className="flex justify-center text-white text-2xl">
-              <span>Post page</span>
-            </div>
             <GoBack />
           </div>
         </LeftSide>

@@ -1,4 +1,4 @@
-import React, { FC, useEffect, useState } from 'react';
+import React, { FC, use, useEffect, useState } from 'react';
 import { useLocalStorage } from 'usehooks-ts';
 import { AiFillDislike, AiFillLike } from 'react-icons/ai';
 import { deletePost, updatePost } from '@/api/posts';
@@ -56,6 +56,16 @@ const PostItem: FC<Props> = ({ post, isAddComment }) => {
       return user?.uid === authorId;
     });
   }, [user, authorId]);
+
+  useEffect(() => {
+    setUpdatePostInfo({
+      title,
+      text,
+      image,
+      likes,
+      dislikes
+    })
+  }, [post]);
 
   const handleUpdate = () => {
     setIsEdit(true);
