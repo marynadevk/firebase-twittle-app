@@ -1,6 +1,5 @@
 import { useAppSelector } from '@/lib/hooks';
 import React, { FC, ReactNode } from 'react';
-import SearchOnPage from './search/';
 
 type Props = {
   children: ReactNode;

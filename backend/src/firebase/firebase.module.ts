@@ -20,11 +20,14 @@ const firebaseProvider = {
       universe_domain: configService.get<string>('UNIVERSAL_DOMAIN'),
     } as admin.ServiceAccount;
 
-    return admin.initializeApp({
-      credential: admin.credential.cert(firebaseConfig),
-      databaseURL: `https://${firebaseConfig.projectId}.firebaseio.com`,
-      storageBucket: `${firebaseConfig.projectId}.appspot.com`,
-    });
+    return admin.initializeApp(
+      {
+        credential: admin.credential.cert(firebaseConfig),
+        databaseURL: `https://${firebaseConfig.projectId}.firebaseio.com`,
+        storageBucket: `${firebaseConfig.projectId}.appspot.com`,
+      },
+      'server' + new Date().getMilliseconds(),
+    );
   },
 };
 

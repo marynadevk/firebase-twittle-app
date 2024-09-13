@@ -37,7 +37,7 @@ const Home = () => {
 
   return (
     <>
-      <Header />
+      <Header isMain />
       {isLoading ? (
         <LoaderDots />
       ) : (

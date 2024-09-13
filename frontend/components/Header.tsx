@@ -8,9 +8,13 @@ import { auth } from '@/lib/firebase/firebase.config';
 import { useAppDispatch, useAppSelector } from '@/lib/hooks';
 import { setIsAuthenticated } from '@/lib/features/auth/authSlice';
 import SearchOnPage from './search/SearchOnPage';
+import { FC } from 'react';
 
+type Props = {
+  isMain?: boolean;
+};
 
-const Header = () => {
+const Header: FC<Props> = ({ isMain }) => {
   const [_token, _setToken, removeToken] = useLocalStorage('token', null);
   const [_user, _setUser, removeUser] = useLocalStorage<null | IUser>(
     'user',
@@ -37,7 +41,7 @@ const Header = () => {
         </Link>
         {isAuthenticated && (
           <div className="flex items-center justify-center gap-5">
-            <SearchOnPage />
+            {isMain && <SearchOnPage />}
             <button className="btn btn-outline btn-accent" onClick={logout}>
               Logout
             </button>

@@ -36,7 +36,7 @@ const SearchOnPage = () => {
       <div className="flex flex-col relative">
         <SearchBox
           classNames={{
-            form: 'flex justify-center items-center',
+            form: 'flex justify-center items-center gap-',
             input: 'input input-bordered input-accent flex items-center',
             submit: 'visibility-hidden',
           }}
@@ -44,7 +44,7 @@ const SearchOnPage = () => {
         {query.trim() !== '' && (
           <div className="dropdown dropdown-open dropdown-end relative">
             <Hits
-              className="menu dropdown-content w-full p-2 shadow-lg bg-base-200 rounded-box z-50"
+              className="menu flex flex-col gap-2 dropdown-content w-full p-2 shadow-lg bg-base-200 rounded-box z-50"
               hitComponent={Hit}
             />
           </div>

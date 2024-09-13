@@ -1,5 +1,14 @@
 {
   "projects": {
     "default": "twittle-app"
-  }
+  },
+  "targets": {},
+  "etags": {
+    "twittle-app": {
+      "extensionInstances": {
+        "firestore-algolia-search": "d39a9ee313967edd521316876c8d72e53f2bf2071c1c4456ca10ec352606b600"
+      }
+    }
+  },
+  "dataconnectEmulatorConfig": {}
 }

@@ -13,7 +13,7 @@ const firebaseConfig = {
   appId: envFirebase.appId,
 };
 
-const app = initializeApp(firebaseConfig);
+const app = initializeApp(firebaseConfig, 'frontend');
 const dbFirestore = getFirestore(app);
 const auth = getAuth(app);
 const storage = getStorage(app);

@@ -9,8 +9,13 @@ import { UserModule } from './user/user.module';
 import { CommentsModule } from './comments/comments.module';
 import { ProfileModule } from './profile/profile.module';
 
+const ENV = process.env.NODE_ENV;
+
 @Module({
   imports: [
+    ConfigModule.forRoot({
+      envFilePath: !ENV ? '.env' : `.env.${ENV}`,
+    }),
     AuthModule,
     FirebaseModule,
     ConfigModule.forRoot({ cache: true }),
